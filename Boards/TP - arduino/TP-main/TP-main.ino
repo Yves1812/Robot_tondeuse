@@ -14,28 +14,36 @@ struct roverType {
 	int teta_point;
 }
 
-struct segmentType {
-	int FL_ticksCum;
-	int FR_ticksCum;
-	int RL_ticksCum;
-	int RR_ticksCum;
-	int millisCum;
-
-    int FL_ticksStep;
-	int FR_ticksStep;
-	int RL_ticksStep;
-	int RR_ticksStep;
-	int millisStep;
-	
-	int last_bearing;
-    int current_bearing;
+struct segmentOrder{
+  int segment_type;
+  int target_ticks;
+  int target_bearing;
+  int taget_speed;
 }
 
-segmentType trajectory[];
+struct segmentStatus {
+	int FL_ticks_cum;
+	int FR_ticks_cum;
+	int RL_ticks_cum;
+	int RR_ticks_cum;
+  int gap_cum;
+	int millis_cum;
+
+  int FL_ticks_step;
+	int FR_ticks_step;
+	int RL_ticks_step;
+	int RR_ticks_step;
+  int gap_step;
+	int millis_step;
+	
+	int last_bearing;
+  int current_bearing;
+}
 
 int I2C_buffer[5];
 roverType rover;
-segmentType segment;
+segmentStatus segment;
+segmentOrder target_move; next_move;
 
 void setup() {
    Wire.begin();        // join i2c bus (address optional for master)
@@ -63,14 +71,39 @@ bool readDecoders() {
    return false;
 }
 
-void deliverSegment() {
-	
+void deliverStraightSegment() {
+
+  segment.cum_gap=min(segment.FL_ticks_step, segment.RL_ticks_step)-min(segment.FR_ticks_step, segment.RR_ticks_step);
+  if (segment.cum_gap>=2){
+    L_PWM=L_PWM-1; // Slow left side
+  }
+  if (segment.cum_gap<=-2){
+    R_PWM=R_PWM-1; // Slow right side
+  }
+  if {
+    if (current_gap+previous_gap==0): {
+      current_gap=0;
+    }
+  }
+  
+
+  o  If max (current gap; abs(sumof(current gap and previous gap))) between slowest left and slowest right >= 2 ticks (6% deviation):
+ slowdown fastest side (function of the gap tbd)
+ Reset current gap #fixed so do not carry forward
+o Else if sumof(current gap and previous gap)=0 :
+ Reset current gap #current and previous cancel out => do not carry forward
+o If gap between front and rear
+ Slowdown slipping wheel to slowest wheel of the corresponding/both side(s)
+o If no gap front rear and abs(sum(current gap – previous gap) <=1:
+ Increase speed by 10% on all
+o Former_gap=current_gap
+
 	segment.FL_ticksCum+=segment.FL_ticksStep;
 	segment.FR_ticksCum+=segment.FR_ticksStep;
 	segment.RL_ticksCum+=segment.RL_ticksStep;
 	segment.RR_ticksCum+=segment.RR_ticksStep;
 	segment.millisCum+=segment.millisStep;
-   }
+}
 
 
 
