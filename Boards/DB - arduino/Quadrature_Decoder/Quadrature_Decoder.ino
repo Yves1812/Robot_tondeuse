@@ -129,6 +129,6 @@ void HandleFrontLeftPulse()
   }
   else
   {
-    ticks[4] -= 1;
+    ticks[3] -= 1;
   }
 }
