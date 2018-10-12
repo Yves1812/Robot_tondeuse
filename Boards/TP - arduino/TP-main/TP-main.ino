@@ -22,22 +22,25 @@ struct segmentOrder{
 }
 
 struct segmentStatus {
-	int FL_ticks_cum;
-	int FR_ticks_cum;
-	int RL_ticks_cum;
-	int RR_ticks_cum;
-  int gap_cum;
-	int millis_cum;
+	int FL_ticks_cum=0;
+	int FR_ticks_cum=0;
+	int RL_ticks_cum=0;
+	int RR_ticks_cum=0;
+	int ticks_cum=0;
+    int gap_cum=0;
+	int millis_cum=0;
 
-  int FL_ticks_step;
+    int FL_ticks_step;
 	int FR_ticks_step;
 	int RL_ticks_step;
 	int RR_ticks_step;
-  int gap_step;
+	int ticks_step;
+    int gap_step;
 	int millis_step;
+	int speed_step;
 	
 	int last_bearing;
-  int current_bearing;
+    int current_bearing;
 }
 
 int I2C_buffer[5];
@@ -47,7 +50,10 @@ segmentOrder target_move; next_move;
 
 void setup() {
    Wire.begin();        // join i2c bus (address optional for master)
+   // need to set-up the two I2C connection
    Serial.begin(9600);  // start serial for output
+   
+   last_bearing=readCompass();
 }
 
 bool readDecoders() {
@@ -72,44 +78,37 @@ bool readDecoders() {
 }
 
 void deliverStraightSegment() {
-
-  segment.cum_gap=min(segment.FL_ticks_step, segment.RL_ticks_step)-min(segment.FR_ticks_step, segment.RR_ticks_step);
-  if (segment.cum_gap>=2){
-    L_PWM=L_PWM-1; // Slow left side
+  segment.FL_ticksCum+=segment.FL_ticksStep;
+  segment.FR_ticksCum+=segment.FR_ticksStep;
+  segment.RL_ticksCum+=segment.RL_ticksStep;
+  segment.RR_ticksCum+=segment.RR_ticksStep;
+  segment.millisCum+=segment.millisStep;
+  segment.cum_gap+=min(segment.FL_ticks_step, segment.RL_ticks_step)-min(segment.FR_ticks_step, segment.RR_ticks_step);
+  segment.ticks_step=min(segment.FL_ticks_step, segment.RL_ticks_step)+min(segment.FR_ticks_step, segment.RR_ticks_step);
+  segment.ticks_cum+=segment.ticks_step;
+  segment.speed_step=segment.ticks_step/segment.millis_step;
+  
+  if (segment.cum_gap>=2 || segment.cum_gap<=-2){
+    LR_PWM_factor=1+segment.cum_gap/segment.ticks_cum;
   }
-  if (segment.cum_gap<=-2){
-    R_PWM=R_PWM-1; // Slow right side
+  if (segment.FL_ticks_step-segment.RL_ticks_step!=0){
+    FRLeft_PWM_factor=1+(segment.FL_ticks_step-segment.RL_ticks_step)/min(segment.FL_ticks_step, segment.RL_ticks_step); // Slow right side
   }
-  if {
-    if (current_gap+previous_gap==0): {
-      current_gap=0;
-    }
+  if (segment.FR_ticks_step-segment.RR_ticks_step!=0){
+    FRRight_PWM_factor=1+(segment.FR_ticks_step-segment.Rr_ticks_step)/min(segment.FR_ticks_step, segment.RR_ticks_step); // Slow right side
   }
   
-
-  o  If max (current gap; abs(sumof(current gap and previous gap))) between slowest left and slowest right >= 2 ticks (6% deviation):
- slowdown fastest side (function of the gap tbd)
- Reset current gap #fixed so do not carry forward
-o Else if sumof(current gap and previous gap)=0 :
- Reset current gap #current and previous cancel out => do not carry forward
-o If gap between front and rear
- Slowdown slipping wheel to slowest wheel of the corresponding/both side(s)
-o If no gap front rear and abs(sum(current gap – previous gap) <=1:
- Increase speed by 10% on all
-o Former_gap=current_gap
-
-	segment.FL_ticksCum+=segment.FL_ticksStep;
-	segment.FR_ticksCum+=segment.FR_ticksStep;
-	segment.RL_ticksCum+=segment.RL_ticksStep;
-	segment.RR_ticksCum+=segment.RR_ticksStep;
-	segment.millisCum+=segment.millisStep;
+  FL_PWM=FL_PWM*LR_PWM_factor*FRLeft_PWM_factor;
+  FR_PWM=FR_PWM*FRRight_PWM_factor;
+  
+  speed_adjust=max(
+  
 }
 
 
 
-void readCompass()
+int readCompass()
 {
-
   Wire.beginTransmission(CMPS12_ADDRESS);  //starts communication with CMPS12
   Wire.write(ANGLE_8);                    //Sends the register we wish to start reading from
   Wire.endTransmission();
@@ -117,19 +116,9 @@ void readCompass()
   // Request 5 bytes from the CMPS12
   // this will give us the 8 bit bearing, 
   // both bytes of the 16 bit bearing, pitch and roll
-  Wire.requestFrom(CMPS12_ADDRESS, 5);       
-  
-        // Wait for all bytes to come back
-  
-  angle8 = Wire.read();               // Read back the 5 bytes
-  high_byte = Wire.read();
-  low_byte = Wire.read();
-  pitch = Wire.read();
-  roll = Wire.read();
-  
-  angle16 = high_byte;                 // Calculate 16 bit angle
-  angle16 <<= 8;
-  angle16 += low_byte;
+  Wire.requestFrom(CMPS12_ADDRESS, 1);
+  int angle8 = (int) Wire.read();               // Read back the 5 bytes
+  return angle8;
 }
 
 
