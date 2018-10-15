@@ -4,6 +4,15 @@
 // distance 1,5mm / tick
 // nominal 350 ticks/s ou 52cm/s
 
+// to do
+// set-up the two I2C connections
+// create 0.1s drumbeat and consecutive actions (read decoders, determine adjustments to deliver segment, apply adjustment, ask for next segment when relevant
+// clarify communication protocol with MU
+// check calculation method between floats and ints to avoid stupod roundings
+
+ 
+
+
 #include <Wire.h>
 
 #define DB_address 0x8
@@ -49,8 +58,7 @@ struct segmentStatus {
   int current_bearing;
 };
 
-class Motor
-{
+class Motor{
   public:
     byte pinforward;
     byte pinbackward;
@@ -108,7 +116,6 @@ segmentOrder target_move;
 
 void setup() {
    Wire.begin();        // join i2c bus (address optional for master)
-   // need to set-up the two I2C connection
    Serial.begin(9600);  // start serial for output
    
    segment.last_bearing=readCompass();
