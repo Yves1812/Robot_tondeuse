@@ -29,22 +29,61 @@
 bool readCompass();
 bool readDecoders();
 
-
-struct roverType {
-	long x;
-	long y;
-	int vx;
-	int vy;
-	byte bearing;
-	int teta_point;
-};
-
 struct segmentOrder{
   int segment_type; //0 in case rotation, 1 in case straight
   long target_ticks;
   int target_bearing;
   int target_speed;
 };
+
+
+class Motor{
+  public:
+    byte pinforward;
+    byte pinbackward;
+    byte pinspeed;
+    int myspeed;
+    byte power;
+
+    Motor(int PinForward,int PinBackward,int PinSpeed);
+    void Forward();
+    void Backward();
+    void Stop();
+    void SetSpeed();
+};
+
+
+class Rover {
+  public:
+    Motor FL_motor;
+    Motor FR_motor;
+    Motor RL_motor;
+    Motor RR_motor;
+	long x;
+	long y;
+	int vx;
+	int vy;
+	byte bearing;
+	int teta_point;
+
+    Rover(void);
+    move(void);
+};
+
+Rover::Rover(void){
+
+	this->FL_motor(31,29,23);
+	this->FR_motor(31,29,23);
+	this->RL_motor(31,29,23);
+	this->RR_motor(31,29,23);
+}
+
+Rover::move(void){
+  this->FL_motor.SetSpeed();
+  this->FR_motor.SetSpeed();
+  this->RL_motor.SetSpeed();
+  this->RR_motor.SetSpeed();
+}
 
 class SegmentStatus {
   public:
@@ -76,25 +115,10 @@ class SegmentStatus {
     void deliverRotationSegment();
 };
 
-class Motor{
-  public:
-    byte pinforward;
-    byte pinbackward;
-    byte pinspeed;
-    int myspeed;
-    byte power;
-
-    Motor(int PinForward,int PinBackward,int PinSpeed);
-    void Forward();
-    void Backward();
-    void Stop();
-    void SetSpeed();
-};
-
 
 // global variabes
 int I2C_buffer[5];
-roverType rover;
+Rover rover;
 SegmentStatus segment;
 segmentOrder target_move;
 
@@ -103,14 +127,9 @@ segmentOrder target_move;
 //PinSpeedR=23
 //sleeptime=1
 
-Motor FL_motor(31,29,23);
-Motor FR_motor(31,29,23);
-Motor RL_motor(31,29,23);
-Motor RR_motor(31,29,23);
-
 
 // Classes member functions
-SegmentStatus::SegmentStatus(){
+SegmentStatus::SegmentStatus(void){
   this->FL_ticks_cum=0;
   this->FR_ticks_cum=0;
   this->RL_ticks_cum=0;
@@ -165,8 +184,8 @@ void SegmentStatus::deliverStraightSegment() {
   if (segment.FR_ticks_step-segment.RR_ticks_step!=0){
     FR_Right_PWM_factor=1+(segment.FR_ticks_step-segment.RR_ticks_step)/min(segment.FR_ticks_step, segment.RR_ticks_step); // Slow right side
   }
-  FL_motor.myspeed*=LR_PWM_factor*FR_Left_PWM_factor;
-  FR_motor.myspeed*=FR_Right_PWM_factor;
+  rover.FL_motor.myspeed*=LR_PWM_factor*FR_Left_PWM_factor;
+  rover.FR_motor.myspeed*=FR_Right_PWM_factor;
 
   if (target_move.target_ticks-segment.ticks_cum<100){
     target_speed=target_move.target_speed/4;
@@ -176,18 +195,18 @@ void SegmentStatus::deliverStraightSegment() {
     target_speed=target_move.target_speed/4;
   }
 
-  scaling_factor=max(max(FL_motor.myspeed, FL_motor.myspeed), max(FL_motor.myspeed,FL_motor.myspeed))/target_speed;
+  scaling_factor=max(max(rover.FL_motor.myspeed, rover.FL_motor.myspeed), max(rover.FL_motor.myspeed,rover.FL_motor.myspeed))/target_speed;
   if (scaling_factor>0.8){
-    if (FL_motor.myspeed!=0){FL_motor.myspeed*=1/scaling_factor;} else {FL_motor.myspeed=1;}        
-    if (FR_motor.myspeed!=0){FR_motor.myspeed*=1/scaling_factor;} else {FR_motor.myspeed=1;}
-    if (RL_motor.myspeed!=0){RL_motor.myspeed*=1/scaling_factor;} else {RL_motor.myspeed=1;}        
-    if (RR_motor.myspeed!=0){RR_motor.myspeed*=1/scaling_factor;} else {RR_motor.myspeed=1;}        
+    if (rover.FL_motor.myspeed!=0){rover.FL_motor.myspeed*=1/scaling_factor;} else {rover.FL_motor.myspeed=1;}        
+    if (rover.FR_motor.myspeed!=0){rover.FR_motor.myspeed*=1/scaling_factor;} else {rover.FR_motor.myspeed=1;}
+    if (rover.RL_motor.myspeed!=0){rover.RL_motor.myspeed*=1/scaling_factor;} else {rover.RL_motor.myspeed=1;}        
+    if (rover.RR_motor.myspeed!=0){rover.RR_motor.myspeed*=1/scaling_factor;} else {rover.RR_motor.myspeed=1;}        
   }
   else {
-    if (FL_motor.myspeed!=0){FL_motor.myspeed*=1.2;} else {FL_motor.myspeed=1;}        
-    if (FR_motor.myspeed!=0){FR_motor.myspeed*=1.2;} else {FR_motor.myspeed=1;}        
-    if (RL_motor.myspeed!=0){RL_motor.myspeed*=1.2;} else {RL_motor.myspeed=1;}        
-    if (RR_motor.myspeed!=0){RR_motor.myspeed*=1.2;} else {RR_motor.myspeed=1;}        
+    if (rover.FL_motor.myspeed!=0){rover.FL_motor.myspeed*=1.2;} else {rover.FL_motor.myspeed=1;}        
+    if (rover.FR_motor.myspeed!=0){rover.FR_motor.myspeed*=1.2;} else {rover.FR_motor.myspeed=1;}        
+    if (rover.RL_motor.myspeed!=0){rover.RL_motor.myspeed*=1.2;} else {rover.RL_motor.myspeed=1;}        
+    if (rover.RR_motor.myspeed!=0){rover.RR_motor.myspeed*=1.2;} else {rover.RR_motor.myspeed=1;}        
   }
 }
 
@@ -201,16 +220,16 @@ void SegmentStatus::deliverRotationSegment() {
   gap_to_target_bearing=abs(this->current_bearing-target_move.target_bearing);
   if (gap_to_target_bearing>5)
   {
-    FL_motor.myspeed=128; 
-    FR_motor.myspeed=-128;        
-    RL_motor.myspeed=128;        
-    RR_motor.myspeed=-128;        
+    rover.FL_motor.myspeed=128; 
+    rover.FR_motor.myspeed=-128;        
+    rover.RL_motor.myspeed=128;        
+    rover.RR_motor.myspeed=-128;        
   }
   else {
-    FL_motor.myspeed=64;
-    FR_motor.myspeed=-64;
-    RL_motor.myspeed=64;
-    RR_motor.myspeed=-64;
+    rover.FL_motor.myspeed=64;
+    rover.FR_motor.myspeed=-64;
+    rover.RL_motor.myspeed=64;
+    rover.RR_motor.myspeed=-64;
   }
 }
 
@@ -254,6 +273,7 @@ void setup() {
    Wire1.onRequest(requestEvent);   // register event on MU bus
 
 // Set time interrupt for drumbeat
+// settimer_interrupt 1s drumBeat()
 
 
 // Set Serial communication for debugging purpose
@@ -286,8 +306,14 @@ Wire1.write(RR_motor.power); //1 byte
 
 bool drumBeat() {
   segment.updateStatus();
-  if (target_move.type == 1):
-  
+  if (target_move.type == 1){
+    segment.deliverStraightSegment();
+  }
+  if (target_move.type == 0){
+    segment.deliverRotationSegment();
+  }
+  rover.move();
+//  TO BE DEVELOPPED
 }
 
 bool readDecoders() {
@@ -339,8 +365,8 @@ boolean readCompass()
 
 
 void loop() {
-  FL_motor.SetSpeed();
-  FR_motor.SetSpeed();
-  RL_motor.SetSpeed();
-  RR_motor.SetSpeed();
+//  FL_motor.SetSpeed();
+//  FR_motor.SetSpeed();
+//  RL_motor.SetSpeed();
+//  RR_motor.SetSpeed();
 }
