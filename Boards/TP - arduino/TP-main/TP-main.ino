@@ -45,7 +45,8 @@ class Motor{
     int myspeed;
     byte power;
 
-    Motor(int PinForward,int PinBackward,int PinSpeed);
+    Motor(void);
+    void Set(int PinForward,int PinBackward,int PinSpeed);
     void Forward();
     void Backward();
     void Stop();
@@ -59,31 +60,16 @@ class Rover {
     Motor FR_motor;
     Motor RL_motor;
     Motor RR_motor;
-	long x;
-	long y;
-	int vx;
-	int vy;
-	byte bearing;
-	int teta_point;
+	  long x;
+	  long y;
+	  int vx;
+	  int vy;
+	  byte bearing;
+	  int teta_point;
 
     Rover(void);
-    move(void);
+    void move_rover(void);
 };
-
-Rover::Rover(void){
-
-	this->FL_motor(31,29,23);
-	this->FR_motor(31,29,23);
-	this->RL_motor(31,29,23);
-	this->RR_motor(31,29,23);
-}
-
-Rover::move(void){
-  this->FL_motor.SetSpeed();
-  this->FR_motor.SetSpeed();
-  this->RL_motor.SetSpeed();
-  this->RR_motor.SetSpeed();
-}
 
 class SegmentStatus {
   public:
@@ -117,6 +103,7 @@ class SegmentStatus {
 
 
 // global variabes
+unsigned long last_moment=0;
 int I2C_buffer[5];
 Rover rover;
 SegmentStatus segment;
@@ -233,7 +220,16 @@ void SegmentStatus::deliverRotationSegment() {
   }
 }
 
-Motor::Motor(int PinForward,int PinBackward, int PinSpeed){
+Motor::Motor(void)
+{
+  this->pinforward=0;
+  this->pinbackward=0;
+  this->pinspeed=0;
+  this->myspeed=0;
+  
+}
+
+void Motor::set(int PinForward,int PinBackward, int PinSpeed){
   this->pinforward=PinForward;
   this->pinbackward=PinBackward;
   this->pinspeed=PinSpeed;
@@ -266,18 +262,33 @@ void Motor::Stop(){
   digitalWrite(this->pinbackward, LOW);
 }
 
+Rover::Rover(void){
+  this->FL_motor.set(31,29,23);
+  this->FR_motor.set(31,29,23);
+  this->RL_motor.set(31,29,23);
+  this->RR_motor.set(31,29,23);
+}
+
+void Rover::move_rover(void){
+  this->FL_motor.SetSpeed();
+  this->FR_motor.SetSpeed();
+  this->RL_motor.SetSpeed();
+  this->RR_motor.SetSpeed();
+}
+
 void setup() {
-// I2C bus set-up  
+// Set Serial communication for debugging purpose
+  delay(1000);
+  Serial.begin(9600);  // start serial for output
+  Serial.print("Serial bus set-up");
+// I2C bus set-up
    Wire.begin();                      // join Sensors i2c bus as master, no address needed
-   Wire1.begin(0x16);                // join MU i2c bus as a slave with address 0x16 (0-7 eserved) 
-   Wire1.onRequest(requestEvent);   // register event on MU bus
+//   Wire1.begin(0x16);                // join MU i2c bus as a slave with address 0x16 (0-7 eserved) 
+//   Wire1.onRequest(requestEvent);   // register event on MU bus
 
 // Set time interrupt for drumbeat
 // settimer_interrupt 1s drumBeat()
-
-
-// Set Serial communication for debugging purpose
-   Serial.begin(9600);  // start serial for output
+   Serial.println("Wire started");
 }
 
 // Interrupt service routines
@@ -294,25 +305,25 @@ void requestEvent() {
 // 20 bytes to be sent
 Wire1.write(segment.ticks_cum); //4 bytes
 Wire1.write(segment.millis_cum); // 4 bytes
-Wire1.write(segment.averag_bearing); // 2 bytes
+Wire1.write(segment.average_bearing); // 2 bytes
 Wire1.write(segment.current_bearing); // 2 bytes
 Wire1.write(segment.speed_step); // 2 bytes
-Wire1.write(segment.teta_point); // 2 bytes
-Wire1.write(FL_motor.power); //1 byte
-Wire1.write(FR_motor.power); //1 byte
-Wire1.write(RL_motor.power); //1 byte
-Wire1.write(RR_motor.power); //1 byte
+//Wire1.write(segment.teta_point); // 2 bytes
+Wire1.write(rover.FL_motor.power); //1 byte
+Wire1.write(rover.FR_motor.power); //1 byte
+Wire1.write(rover.RL_motor.power); //1 byte
+Wire1.write(rover.RR_motor.power); //1 byte
 }
 
 bool drumBeat() {
   segment.updateStatus();
-  if (target_move.type == 1){
+  if (target_move.segment_type == 1){
     segment.deliverStraightSegment();
   }
-  if (target_move.type == 0){
+  if (target_move.segment_type == 0){
     segment.deliverRotationSegment();
   }
-  rover.move();
+  rover.move_rover();
 //  TO BE DEVELOPPED
 }
 
@@ -365,8 +376,13 @@ boolean readCompass()
 
 
 void loop() {
-//  FL_motor.SetSpeed();
-//  FR_motor.SetSpeed();
-//  RL_motor.SetSpeed();
-//  RR_motor.SetSpeed();
+   Serial.println(last_moment);
+   if (millis()-last_moment>100){ // for testing purpose
+     last_moment=millis();
+     Serial.print(readDecoders());
+     Serial.println(segment.FL_ticks_step);
+     Serial.println(segment.FR_ticks_step);
+     Serial.println(segment.RL_ticks_step);
+     Serial.println(segment.RR_ticks_step);
+   }
 }
