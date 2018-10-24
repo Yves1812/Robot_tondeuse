@@ -29,8 +29,11 @@
 #define RearRightEncoderDir 50 //PORTB 00001000
  
 volatile byte ticks[5]={127,127,127,127,0};
-volatile byte ticks_latched[5];
+volatile byte ticks_init[5]={127,127,127,127,0};
+volatile byte ticks_latched[5]={127,127,127,127,0};
 volatile unsigned long now, last_time, time_delta;
+volatile int i;
+unsigned long last_moment=0; // for testing
 
 void setup()
 {
@@ -72,7 +75,11 @@ void setup()
  
 void loop()
 {
-   Serial.println(last_time);
+//   Serial.println(last_time);
+   if (millis()-last_moment>100){ // for testing purpose
+     last_moment=millis();
+     Serial.println(test());
+   }
 }
  
 // Interrupt service routines
@@ -83,15 +90,27 @@ void requestEvent() {
    time_delta=now-last_time;
    last_time=now;
    ticks_latched[4]=(byte) time_delta;
-   Wire.write((byte*) ticks_latched, 5); // respond with message of 6 bytes as expected by master
+   Wire.write((byte*) ticks_latched, 5); // respond with message of 5 bytes as expected by master
 }
+
+
+byte test() {
+   memcpy((byte*)ticks_latched, (byte *) ticks, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
+   memcpy((byte*)ticks, (byte *) ticks_init, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
+   now=millis();
+   time_delta=now-last_time;
+   last_time=now;
+   ticks_latched[4]=(byte) time_delta;
+   return ticks_latched[2];
+}
+
 
 // Encoders External interrupts since the interrupt will only fire on 'rising' we don't need to read pulse
 // and adjust counter + if A leads B or - if reverse
 
 void HandleFrontLeftPulse()
 {
-  if ( PORTA & 00000001) {
+  if ( PINA & B00000001) {
     ticks[0] += 1;
   }
   else
@@ -102,7 +121,7 @@ void HandleFrontLeftPulse()
  
  void HandleFrontRightPulse()
 {
-  if (PORTA & 00000100) {
+  if (PINA & B00000100) {
     ticks[1] += 1;
   }
   else
@@ -113,7 +132,7 @@ void HandleFrontLeftPulse()
  
  void HandleRearLeftPulse()
 {
-  if (PORTB & 00000010) {
+  if (PINB & B00000010) {
     ticks[2] += 1;
   }
   else
@@ -124,7 +143,7 @@ void HandleFrontLeftPulse()
  
  void HandleRearRightPulse()
 {
-  if ( PORTB & 00001000) {
+  if ( PINB & B00001000) {
     ticks[3] += 1;
   }
   else
