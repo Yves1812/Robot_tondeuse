@@ -123,9 +123,10 @@ SegmentStatus::SegmentStatus(void){
   speed_cum=0;
 }
 
-SegmentStatus::begin(void){
+void SegmentStatus::begin(void){
   //Initiate compass   
-  last_bearing=readCompass();
+//  readCompass();
+  last_bearing=0;
   average_bearing=last_bearing;
 }
 
@@ -240,7 +241,7 @@ void Motor::setSpeed(){
   if (myspeed >0){
     digitalWrite(pinforward, HIGH);
     digitalWrite(pinbackward, LOW);
-    analogWrite(inspeed, myspeed);
+    analogWrite(pinspeed, myspeed);
   }
   if (myspeed == 0){
     digitalWrite(pinforward, LOW);
@@ -261,7 +262,7 @@ void Motor::stop(){
 Rover::Rover(void){
 	x=0;
 }
-Rover::begin(void){
+void Rover::begin(void){
 
   FL_motor.set(31,29,23);
   FR_motor.set(31,29,23);
@@ -270,10 +271,10 @@ Rover::begin(void){
 }
 
 void Rover::move_rover(void){
-  FL_motor.SetSpeed();
-  FR_motor.SetSpeed();
-  RL_motor.SetSpeed();
-  RR_motor.SetSpeed();
+  FL_motor.setSpeed();
+  FR_motor.setSpeed();
+  RL_motor.setSpeed();
+  RR_motor.setSpeed();
 }
 
 void setup() {
@@ -342,11 +343,11 @@ bool readDecoders(SegmentStatus *segment){
       Wire.requestFrom(DB_address, 5);    // request 5 bytes from slave device DB_board
       while (Wire.available()<5 && millis()-now < 100); // need slave to send no less than requested
       if (Wire.available()== 5) {
-         *segment.FL_ticks_step=((int) Wire.read())-127;
-         *segment.FR_ticks_step=((int) Wire.read())-127;
-         *segment.RL_ticks_step=((int) Wire.read())-127;
-         *segment.RR_ticks_step=((int) Wire.read())-127;
-         *segment.millis_step=(int) Wire.read();
+         segment->FL_ticks_step=((int) Wire.read())-127;
+         segment->FR_ticks_step=((int) Wire.read())-127;
+         segment->RL_ticks_step=((int) Wire.read())-127;
+         segment->RR_ticks_step=((int) Wire.read())-127;
+         segment->millis_step=(int) Wire.read();
          return true;
       }
       retries++;
@@ -370,8 +371,8 @@ boolean readCompass(SegmentStatus *segment){
       Wire.requestFrom(COMPASS_address, 1);
       while (Wire.available()<1 && millis()-now < 100); // need slave to send no less than requested
       if (Wire.available()== 1) {
-        *segment.last_bearing=segment.current_bearing;
-        *segment.current_bearing = Wire.read();        // Read the 1 bytes
+        segment->last_bearing=segment->current_bearing;
+        segment->current_bearing = Wire.read();        // Read the 1 bytes
         return true;
       }
       retries++;
@@ -384,10 +385,10 @@ void loop(){
    if (millis()-last_moment>100){ // for testing purpose
      last_moment=millis();
      Serial.println(last_moment);
-     Serial.print(readDecoders());
-     Serial.println(segment.FL_ticks_step);
-     Serial.println(segment.FR_ticks_step);
-     Serial.println(segment.RL_ticks_step);
-     Serial.println(segment.RR_ticks_step);
+//     Serial.print(readDecoders(&segment));
+//     Serial.println(segment.FL_ticks_step);
+//     Serial.println(segment.FR_ticks_step);
+//     Serial.println(segment.RL_ticks_step);
+//     Serial.println(segment.RR_ticks_step);
    }
 }
