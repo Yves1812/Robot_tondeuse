@@ -35,6 +35,55 @@ volatile unsigned long now, last_time, time_delta;
 volatile int i;
 unsigned long last_moment=0; // for testing
 
+void requestEvent();
+
+// Encoders External interrupts since the interrupt will only fire on 'rising' we don't need to read pulse
+// and adjust counter + if A leads B or - if reverse
+void HandleFrontLeftPulse()
+{
+  if ( PINA & B00000001) {
+    ticks[0] += 1;
+  }
+  else
+  {
+    ticks[0] -= 1;
+  }
+}
+ 
+void HandleFrontRightPulse()
+{
+  if (PINA & B00000100) {
+    ticks[1] += 1;
+  }
+  else
+  {
+    ticks[1] -= 1;
+  }
+}
+ 
+void HandleRearLeftPulse()
+{
+  if (PINB & B00000010) {
+    ticks[2] += 1;
+  }
+  else
+  {
+    ticks[2] -= 1;
+  }
+}
+ 
+void HandleRearRightPulse()
+{
+  if ( PINB & B00001000) {
+    ticks[3] += 1;
+  }
+  else
+  {
+    ticks[3] -= 1;
+  }
+}
+
+
 void setup()
 {
   Serial.begin(115200);
@@ -72,20 +121,21 @@ void setup()
    Wire.begin(8);                // join i2c bus with address #8
    Wire.onRequest(requestEvent); // register event
 }
- 
+
 void loop()
 {
 //   Serial.println(last_time);
-   if (millis()-last_moment>100){ // for testing purpose
-     last_moment=millis();
-     Serial.println(test());
-   }
+//   if (millis()-last_moment>100){ // for testing purpose
+//     last_moment=millis();
+//     Serial.println(test());
+//   }
 }
  
 // Interrupt service routines
 // I2C write data
 void requestEvent() {
    memcpy((byte*)ticks_latched, (byte *) ticks, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
+   memcpy((byte*)ticks, (byte *) ticks_init, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
    now=millis();
    time_delta=now-last_time;
    last_time=now;
@@ -93,61 +143,13 @@ void requestEvent() {
    Wire.write((byte*) ticks_latched, 5); // respond with message of 5 bytes as expected by master
 }
 
+//byte test() {
+//   memcpy((byte*)ticks_latched, (byte *) ticks, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
+//   memcpy((byte*)ticks, (byte *) ticks_init, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
+//   now=millis();
+//   time_delta=now-last_time;
+//   last_time=now;
+//   ticks_latched[4]=(byte) time_delta;
+//   return ticks_latched[2];
+//}
 
-byte test() {
-   memcpy((byte*)ticks_latched, (byte *) ticks, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
-   memcpy((byte*)ticks, (byte *) ticks_init, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
-   now=millis();
-   time_delta=now-last_time;
-   last_time=now;
-   ticks_latched[4]=(byte) time_delta;
-   return ticks_latched[2];
-}
-
-
-// Encoders External interrupts since the interrupt will only fire on 'rising' we don't need to read pulse
-// and adjust counter + if A leads B or - if reverse
-
-void HandleFrontLeftPulse()
-{
-  if ( PINA & B00000001) {
-    ticks[0] += 1;
-  }
-  else
-  {
-    ticks[0] -= 1;
-  }
-}
- 
- void HandleFrontRightPulse()
-{
-  if (PINA & B00000100) {
-    ticks[1] += 1;
-  }
-  else
-  {
-    ticks[1] -= 1;
-  }
-}
- 
- void HandleRearLeftPulse()
-{
-  if (PINB & B00000010) {
-    ticks[2] += 1;
-  }
-  else
-  {
-    ticks[2] -= 1;
-  }
-}
- 
- void HandleRearRightPulse()
-{
-  if ( PINB & B00001000) {
-    ticks[3] += 1;
-  }
-  else
-  {
-    ticks[3] -= 1;
-  }
-}

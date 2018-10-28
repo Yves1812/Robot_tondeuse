@@ -19,10 +19,22 @@
 // * motor_power x4 - byte x4
 // check calculation method between floats and ints to avoid stupod roundings
 
-// PinForwardR=31
-// PinBackwardR=29
-// PinSpeedR=23
-// sleeptime=1
+//Physical pins of motors
+#define PinForwardFL 24
+#define PinBackwardFL 25
+#define PinSpeedFL 3
+
+#define PinForwardFR 26
+#define PinBackwardFR 27
+#define PinSpeedFR 4
+
+#define PinForwardRL 28
+#define PinBackwardRL 29
+#define PinSpeedRL 5
+
+#define PinForwardRR 30
+#define PinBackwardRR 31
+#define PinSpeedRR 6
 
 #include <Wire.h>
 
@@ -61,12 +73,12 @@ class Rover {
     Motor FR_motor;
     Motor RL_motor;
     Motor RR_motor;
-	long x;
-	long y;
-	int vx;
-	int vy;
-	byte bearing;
-	int teta_point;
+	  long x;
+	  long y;
+	  int vx;
+	  int vy;
+	  byte bearing;
+	  int teta_point;
 
     Rover(void);
     void begin(void);
@@ -100,6 +112,8 @@ class SegmentStatus {
     SegmentStatus(void);
     void begin(void);
     boolean updateStatus(void);
+    boolean readCompass(void);
+    boolean readDecoders(void);
     void deliverStraightSegment(void);
     void deliverRotationSegment(void);
 };
@@ -125,14 +139,12 @@ SegmentStatus::SegmentStatus(void){
 
 void SegmentStatus::begin(void){
   //Initiate compass   
-//  readCompass();
-  last_bearing=0;
+  readCompass();
   average_bearing=last_bearing;
 }
 
 boolean SegmentStatus::updateStatus(){
 // reads sensors, updates segment and returns true if ok, false otherwise
-
   if (readDecoders() && readCompass()) {
     FL_ticks_cum+=FL_ticks_step;
     FR_ticks_cum+=FR_ticks_step;
@@ -157,7 +169,6 @@ boolean SegmentStatus::updateStatus(){
 }
 
 void SegmentStatus::deliverStraightSegment() {
-// would be cleaner to return an array of the 4 target speeds or make this part of rover class with motors being elements of rover
   float LR_PWM_factor, FR_Left_PWM_factor, FR_Right_PWM_factor, scaling_factor;
   int target_speed;
 
@@ -219,6 +230,52 @@ void SegmentStatus::deliverRotationSegment() {
   }
 }
 
+bool SegmentStatus::readDecoders(){
+   int retries=0;
+   unsigned long now;
+   
+   while (retries<4) { //checks 5 bytes were received 3 retries max
+      now=millis();
+      Wire.requestFrom(DB_address, 5);    // request 5 bytes from slave device DB_board
+      while (Wire.available()<5 && millis()-now < 100); // need slave to send no less than requested
+      if (Wire.available()== 5) {
+         FL_ticks_step=((int) Wire.read())-127;
+         FR_ticks_step=((int) Wire.read())-127;
+         RL_ticks_step=((int) Wire.read())-127;
+         RR_ticks_step=((int) Wire.read())-127;
+         millis_step=(int) Wire.read();
+         return true;
+      }
+      retries++;
+   }
+   return false;
+}
+
+boolean SegmentStatus::readCompass(){
+// returns current bearing as a byte or -1 if error while reading
+  int retries=0;
+  unsigned long now;
+ 
+  // Request 1 byte from the CMPS12
+  // this will give us the 8 bit bearing
+   while (retries<4) { //checks requested bytes were received 3 retries max
+      now=millis();
+      Wire.beginTransmission(COMPASS_address);//starts communication with CMPS12
+      Wire.write(ANGLE_8);                    //Sends the register we wish to start reading from
+      Wire.endTransmission();
+      Wire.requestFrom(COMPASS_address, 1);
+      while (Wire.available()<1 && millis()-now < 100); // need slave to send no less than requested
+      if (Wire.available()>0) {
+        last_bearing=current_bearing;
+        current_bearing = Wire.read();        // Read the 1 bytes
+        return true;
+      }
+      retries++;
+   }
+   return false;
+}
+
+
 Motor::Motor(void){
   pinforward=0;
   pinbackward=0;
@@ -231,9 +288,9 @@ void Motor::set(int PinForward,int PinBackward, int PinSpeed){
   pinbackward=PinBackward;
   pinspeed=PinSpeed;
   myspeed=0;
-  digitalWrite(pinforward, OUTPUT);
-  digitalWrite(pinbackward, OUTPUT);
-  digitalWrite(pinspeed, OUTPUT);
+  pinMode(pinforward, OUTPUT);
+  pinMode(pinbackward, OUTPUT);
+  pinMode(pinspeed, OUTPUT);
   analogWrite(pinspeed, myspeed);
 }
 
@@ -263,11 +320,10 @@ Rover::Rover(void){
 	x=0;
 }
 void Rover::begin(void){
-
-  FL_motor.set(31,29,23);
-  FR_motor.set(31,29,23);
-  RL_motor.set(31,29,23);
-  RR_motor.set(31,29,23);
+  FL_motor.set(PinForwardFL,PinBackwardFL,PinSpeedFL);
+  FR_motor.set(PinForwardFR,PinBackwardFR,PinSpeedFR);
+  RL_motor.set(PinForwardRL,PinBackwardRL,PinSpeedRL);
+  RR_motor.set(PinForwardRR,PinBackwardRR,PinSpeedRR);
 }
 
 void Rover::move_rover(void){
@@ -284,22 +340,22 @@ void setup() {
   Serial.println("Serial bus initiated");
   
   segment.begin();
+  rover.begin();
 
 // I2C bus set-up
   Wire.begin();
   Serial.println("I2C sensors bus initiated as master");
 
-//  Wire1.begin(0x16);               // join MU i2c bus as a slave with address 0x16 (0-7 eserved) 
-//  Wire1.onRequest(requestEvent);   // register event on MU bus
-//  Serial.println("I2C Main Unit bus initiated as a slave");
+  Wire1.begin(0x16);               // join MU i2c bus as a slave with address 0x16 (0-7 eserved) 
+  Wire1.onRequest(requestEvent);   // register event on MU bus
+  Serial.println("I2C Main Unit bus initiated as a slave");
 
 // TO DO
-    //Set time interrupt for drumbeat
-    // settimer_interrupt 1s drumBeat()  
+    //Set time interrupt for driverover
 }
 
 // Interrupt service routines
-void requestEvent(SegmentStatus segment) {
+void requestEvent() {
 // I2C write data in response to IMU request
 // * ticks_cum - long
 // * millis_cum -long
@@ -315,14 +371,14 @@ Wire1.write(segment.millis_cum); // 4 bytes
 Wire1.write(segment.average_bearing); // 2 bytes
 Wire1.write(segment.current_bearing); // 2 bytes
 Wire1.write(segment.speed_step); // 2 bytes
-//Wire1.write(segment.teta_point); // 2 bytes
+Wire1.write(rover.teta_point); // 2 bytes
 Wire1.write(rover.FL_motor.power); //1 byte
 Wire1.write(rover.FR_motor.power); //1 byte
 Wire1.write(rover.RL_motor.power); //1 byte
 Wire1.write(rover.RR_motor.power); //1 byte
 }
 
-bool drumBeat(){
+void driveRover(){
   segment.updateStatus();
   if (target_move.segment_type == 1){
     segment.deliverStraightSegment();
@@ -331,60 +387,16 @@ bool drumBeat(){
     segment.deliverRotationSegment();
   }
   rover.move_rover();
-//  TO BE DEVELOPPED
 }
 
-bool readDecoders(SegmentStatus *segment){
-   int retries=0;
-   unsigned long now;
-   
-   while (retries<4) { //checks 5 bytes were received 3 retries max
-      now=millis();
-      Wire.requestFrom(DB_address, 5);    // request 5 bytes from slave device DB_board
-      while (Wire.available()<5 && millis()-now < 100); // need slave to send no less than requested
-      if (Wire.available()== 5) {
-         segment->FL_ticks_step=((int) Wire.read())-127;
-         segment->FR_ticks_step=((int) Wire.read())-127;
-         segment->RL_ticks_step=((int) Wire.read())-127;
-         segment->RR_ticks_step=((int) Wire.read())-127;
-         segment->millis_step=(int) Wire.read();
-         return true;
-      }
-      retries++;
-   }
-   return false;
-}
-
-boolean readCompass(SegmentStatus *segment){
-// returns current bearing as a byte or -1 if error while reading
-  int retries=0;
-  unsigned long now;
-
-  Wire.beginTransmission(COMPASS_address);//starts communication with CMPS12
-  Wire.write(ANGLE_8);                    //Sends the register we wish to start reading from
-  Wire.endTransmission();
- 
-  // Request 1 byte from the CMPS12
-  // this will give us the 8 bit bearing
-   while (retries<4) { //checks requested bytes were received 3 retries max
-      now=millis();
-      Wire.requestFrom(COMPASS_address, 1);
-      while (Wire.available()<1 && millis()-now < 100); // need slave to send no less than requested
-      if (Wire.available()== 1) {
-        segment->last_bearing=segment->current_bearing;
-        segment->current_bearing = Wire.read();        // Read the 1 bytes
-        return true;
-      }
-      retries++;
-   }
-   return false;
-}
+int i=0;
 
 // Loop routine
 void loop(){
-   if (millis()-last_moment>100){ // for testing purpose
+   if (millis()-last_moment>500){ // for testing purpose
      last_moment=millis();
-     Serial.println(last_moment);
+      test_compass();
+//     Serial.println(last_moment);
 //     Serial.print(readDecoders(&segment));
 //     Serial.println(segment.FL_ticks_step);
 //     Serial.println(segment.FR_ticks_step);
@@ -392,3 +404,32 @@ void loop(){
 //     Serial.println(segment.RR_ticks_step);
    }
 }
+
+void basic_test(){
+  Serial.println(last_moment);
+}
+
+void test_decoders(){
+  segment.readDecoders();
+  Serial.println(segment.FL_ticks_step);
+  Serial.println(segment.FR_ticks_step);
+  Serial.println(segment.RL_ticks_step);
+  Serial.println(segment.RR_ticks_step);
+  Serial.println(segment.millis_step);
+}
+
+void test_motors(int i){
+    rover.FL_motor.myspeed=i*64; 
+    rover.FR_motor.myspeed=i*64;        
+    rover.RL_motor.myspeed=i*127;        
+    rover.RR_motor.myspeed=i*64;
+    rover.move_rover();
+}
+
+void test_compass(){
+  if (segment.readCompass()){
+    Serial.print("Read successfull - ");
+  }
+  Serial.println(segment.current_bearing);
+}
+
