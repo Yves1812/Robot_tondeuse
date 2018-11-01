@@ -7,7 +7,9 @@
 // nominal rotation speed 62°/s (assuming radius of wheel to rotation center = 0,5m) 
 
 // to do
-// set-up the two I2C connections
+// set-up the I2C connection as slave to MU
+// set-up the SPI connection as master to DB
+// set-up the UART connection to read compass
 // create 0.1s drumbeat and consecutive actions (read decoders, determine adjustments to deliver segment, apply adjustment, ask for next segment when relevant
 // clarify communication protocol with MU - MU sends request for x bytes, TP will send current segment cum status:
 // * ticks_cum - long
@@ -18,6 +20,10 @@
 // * teta_point float
 // * motor_power x4 - byte x4
 // check calculation method between floats and ints to avoid stupod roundings
+
+#include <SPI.h>
+#include <Wire.h>
+
 
 //Physical pins of motors
 #define PinForwardFL 24
@@ -36,15 +42,11 @@
 #define PinBackwardRR 31
 #define PinSpeedRR 6
 
-#include <Wire.h>
-
-#define DB_address 0x8
-#define COMPASS_address 0x60
+// Compass pin
 #define ANGLE_8  1           // Register to read 8 bits angle from compass
 
-// Sensor reading function header
-bool readCompass();
-bool readDecoders();
+// SPI Slave Select pins
+#define SS_DECODER_BOARD 10 // check pin
 
 struct segmentOrder{
   int segment_type; //0 in case rotation, 1 in case straight
@@ -231,24 +233,24 @@ void SegmentStatus::deliverRotationSegment() {
 }
 
 bool SegmentStatus::readDecoders(){
-   int retries=0;
-   unsigned long now;
-   
-   while (retries<4) { //checks 5 bytes were received 3 retries max
-      now=millis();
-      Wire.requestFrom(DB_address, 5);    // request 5 bytes from slave device DB_board
-      while (Wire.available()<5 && millis()-now < 100); // need slave to send no less than requested
-      if (Wire.available()== 5) {
-         FL_ticks_step=((int) Wire.read())-127;
-         FR_ticks_step=((int) Wire.read())-127;
-         RL_ticks_step=((int) Wire.read())-127;
-         RR_ticks_step=((int) Wire.read())-127;
-         millis_step=(int) Wire.read();
-         return true;
-      }
-      retries++;
-   }
-   return false;
+// Need error management
+  SPI.beginTransaction (SPISettings (2000000, MSBFIRST, SPI_MODE0));  // 2 MHz clock
+  // enable Slave Select
+  digitalWrite(SS_DECODER_BOARD, LOW);
+  // Collect the 5 bytes
+  SPI.transfer('s'); // 's' like Start to trigger matching on slave
+  delayMicroseconds (10); // wait for the latching to complete
+  //read the 5 bytes expected
+  FL_ticks_step=((int) SPI.transfer(1))-127;
+  FR_ticks_step=((int) SPI.transfer(2))-127;
+  RL_ticks_step=((int) SPI.transfer(3))-127;
+  RR_ticks_step=((int) SPI.transfer(4))-127;
+  millis_step=(int) SPI.transfer(0);
+  // disable Slave Select
+  digitalWrite(SS, HIGH);
+  SPI.endTransaction ();
+  
+  return true;
 }
 
 boolean SegmentStatus::readCompass(){
@@ -260,14 +262,11 @@ boolean SegmentStatus::readCompass(){
   // this will give us the 8 bit bearing
    while (retries<4) { //checks requested bytes were received 3 retries max
       now=millis();
-      Wire.beginTransmission(COMPASS_address);//starts communication with CMPS12
-      Wire.write(ANGLE_8);                    //Sends the register we wish to start reading from
-      Wire.endTransmission();
-      Wire.requestFrom(COMPASS_address, 1);
-      while (Wire.available()<1 && millis()-now < 100); // need slave to send no less than requested
-      if (Wire.available()>0) {
+      Serial1.write(CMPS_GET_ANGLE8);  // Request and read 8 bit angle
+      while (Serial1.available()<1 && millis()-now < 100); // need slave to send no less than requested
+      if (Serial1.available()>0) {
         last_bearing=current_bearing;
-        current_bearing = Wire.read();        // Read the 1 bytes
+        current_bearing = Serial1.read();        // Read the 1 bytes
         return true;
       }
       retries++;
@@ -335,20 +334,28 @@ void Rover::move_rover(void){
 
 void setup() {
 // Set Serial communication for debugging purpose
-  delay(1000);
-  Serial.begin(9600);
+  delay(100);
+  Serial.begin(9600);  
+  Serial1.begin(9600);
+  Serial.println("Booting up ...");
   Serial.println("Serial bus initiated");
-  
+
   segment.begin();
   rover.begin();
 
 // I2C bus set-up
-  Wire.begin();
-  Serial.println("I2C sensors bus initiated as master");
-
-  Wire1.begin(0x16);               // join MU i2c bus as a slave with address 0x16 (0-7 eserved) 
-  Wire1.onRequest(requestEvent);   // register event on MU bus
+  Wire.begin(0x16);               // join MU i2c bus as a slave with address 0x16 (0-7 eserved) 
+  Wire.onRequest(requestEvent);   // register event on MU bus
   Serial.println("I2C Main Unit bus initiated as a slave");
+  
+// SPI bus initiated
+  digitalWrite(SS_DECODER_BOARD, HIGH);  // ensure SS for DECODER_BOARD stays high for now
+  // Put SCK, MOSI, SS pins into output mode
+  // also put SCK, MOSI into LOW state, and SS into HIGH state.
+  // Then put SPI hardware into Master mode and turn SPI on
+  SPI.begin ();
+  // Slow down the master a bit
+  SPI.setClockDivider(SPI_CLOCK_DIV8);
 
 // TO DO
     //Set time interrupt for driverover

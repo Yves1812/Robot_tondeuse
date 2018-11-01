@@ -1,5 +1,7 @@
 #include <Wire.h>
 
+// modified to use SPI bus instead of I2C - could be accelerated if needed (optimize memcpy)
+
 // Mega external interrupt pins 2, 3, 18, 19, 20, 21
 // 2 = FLPulse PORTE4
 // 22 = FLDir PORTA0
@@ -12,15 +14,13 @@
 // 20 = SDA
 // 21 = SCL
  
-// Quadrature encoders
-
+// Quadrature encoders pins
 // Front Left encoder
 #define FrontLeftEncoderPulse 2
 #define FrontLeftEncoderDir 22 //PORTA 00000001
 // Front Right encoder
 #define FrontRightEncoderPulse 3
 #define FrontRightEncoderDir 24 //PORTA 00000100
-
 // Rear Left encoder
 #define RearLeftEncoderPulse 18
 #define RearLeftEncoderDir 52 //PORTB 00000010
@@ -28,12 +28,13 @@
 #define RearRightEncoderPulse 19
 #define RearRightEncoderDir 50 //PORTB 00001000
  
+// global variables
 volatile byte ticks[5]={127,127,127,127,0};
 volatile byte ticks_init[5]={127,127,127,127,0};
 volatile byte ticks_latched[5]={127,127,127,127,0};
-volatile unsigned long now, last_time, time_delta;
-volatile int i;
-unsigned long last_moment=0; // for testing
+volatile unsigned long now, last_time;
+volatile byte time_delta;
+//unsigned long last_moment=0; // for testing
 
 void requestEvent();
 
@@ -83,10 +84,13 @@ void HandleRearRightPulse()
   }
 }
 
-
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
+  // Set SPI bus
+  pinMode(MISO, OUTPUT);     // have to send on master in, *slave out*
+  SPCR |= _BV(SPE);   // turn on SPI in slave mode
+  SPCR |= _BV(SPIE);   // turn on interrupts
   
   // Quadrature encoders
   // Front Left encoder
@@ -117,9 +121,9 @@ void setup()
   digitalWrite(RearRightEncoderDir, LOW);  // turn on pullup resistors
   attachInterrupt(digitalPinToInterrupt(RearRightEncoderPulse), HandleRearRightPulse, RISING);
   
-   // I2C bus setup
-   Wire.begin(8);                // join i2c bus with address #8
-   Wire.onRequest(requestEvent); // register event
+//   // I2C bus setup
+//   Wire.begin(8);                // join i2c bus with address #8
+//   Wire.onRequest(requestEvent); // register event
 }
 
 void loop()
@@ -132,24 +136,37 @@ void loop()
 }
  
 // Interrupt service routines
-// I2C write data
-void requestEvent() {
-   memcpy((byte*)ticks_latched, (byte *) ticks, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
-   memcpy((byte*)ticks, (byte *) ticks_init, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
-   now=millis();
-   time_delta=now-last_time;
-   last_time=now;
-   ticks_latched[4]=(byte) time_delta;
-   Wire.write((byte*) ticks_latched, 5); // respond with message of 5 bytes as expected by master
-}
+// SPI interrupt routine
+ISR (SPI_STC_vect)
+{
+  byte c = SPDR;
+  if (c=='s')
+  {
+  // if order = s as start copy and latch the ticks, read time, return first byte
+    memcpy((byte*)ticks_latched, (byte *) ticks, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
+    memcpy((byte*)ticks, (byte *) ticks_init, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
+    SPDR=ticks_latched[0]; // respond first byte
+    now=millis();
+    time_delta=now-last_time;
+    last_time=now;
+    ticks_latched[4]=(byte) time_delta;
+    break;
+  }
+  else
+  {
+    SPDR = ticks_latched[c]; // return corresonding tick
+  } 
+}  // end of interrupt service routine (ISR) SPI_STC_vect
 
-//byte test() {
-//   memcpy((byte*)ticks_latched, (byte *) ticks, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
-//   memcpy((byte*)ticks, (byte *) ticks_init, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
-//   now=millis();
-//   time_delta=now-last_time;
-//   last_time=now;
-//   ticks_latched[4]=(byte) time_delta;
-//   return ticks_latched[2];
+//// I2C write data
+//void requestEvent() {
+   //memcpy((byte*)ticks_latched, (byte *) ticks, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
+   //memcpy((byte*)ticks, (byte *) ticks_init, sizeof(ticks)); // not sure this is needed because I2C interrupt shall not be interruted by external interrupt
+   //now=millis();
+   //time_delta=now-last_time;
+   //last_time=now;
+   //ticks_latched[4]=(byte) time_delta;
+   //Wire.write((byte*) ticks_latched, 5); // respond with message of 5 bytes as expected by master
 //}
+
 
