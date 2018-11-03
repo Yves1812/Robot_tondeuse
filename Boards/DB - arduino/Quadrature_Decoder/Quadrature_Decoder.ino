@@ -150,11 +150,12 @@ ISR (SPI_STC_vect)
     time_delta=now-last_time;
     last_time=now;
     ticks_latched[4]=(byte) time_delta;
-    break;
+    return;
   }
   else
   {
     SPDR = ticks_latched[c]; // return corresonding tick
+    return;
   } 
 }  // end of interrupt service routine (ISR) SPI_STC_vect
 

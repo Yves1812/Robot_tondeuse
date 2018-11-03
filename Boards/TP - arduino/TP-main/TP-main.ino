@@ -46,7 +46,8 @@
 #define ANGLE_8  1           // Register to read 8 bits angle from compass
 
 // SPI Slave Select pins
-#define SS_DECODER_BOARD 10 // check pin
+#define SS_DECODER_BOARD 22
+#define SS_HW 53
 
 struct segmentOrder{
   int segment_type; //0 in case rotation, 1 in case straight
@@ -123,9 +124,11 @@ class SegmentStatus {
 // global variabes
 unsigned long last_moment=0;
 int I2C_buffer[5];
+boolean next_seg_available, need_next_seg;
 Rover rover;
 SegmentStatus segment;
-segmentOrder target_move;
+segmentOrder current_move;
+segmentOrder next_move;
 
 // Classes member functions
 SegmentStatus::SegmentStatus(void){
@@ -154,7 +157,7 @@ boolean SegmentStatus::updateStatus(){
     RR_ticks_cum+=RR_ticks_step;
     millis_cum+=millis_step;
 
-    if (target_move.segment_type==1){ // this is a straight segment
+    if (current_move.segment_type==1){ // this is a straight segment
       ticks_step=min(FL_ticks_step, RL_ticks_step)+min(FR_ticks_step, RR_ticks_step);
       ticks_cum+=ticks_step;
       speed_step=ticks_step/millis_step;
@@ -186,12 +189,13 @@ void SegmentStatus::deliverStraightSegment() {
   rover.FL_motor.myspeed*=LR_PWM_factor*FR_Left_PWM_factor;
   rover.FR_motor.myspeed*=FR_Right_PWM_factor;
 
-  if (target_move.target_ticks-segment.ticks_cum<100){
-    target_speed=target_move.target_speed/4;
+  if (current_move.target_ticks-segment.ticks_cum<100){
+    target_speed=current_move.target_speed/4;
+    if (next_seg_available == false) {need_next_seg=true;}
   }
   else
   {
-    target_speed=target_move.target_speed/4;
+    target_speed=current_move.target_speed;
   }
 
   scaling_factor=max(max(rover.FL_motor.myspeed, rover.FL_motor.myspeed), max(rover.FL_motor.myspeed,rover.FL_motor.myspeed))/target_speed;
@@ -216,7 +220,7 @@ void SegmentStatus::deliverRotationSegment() {
   // manage turn right or left to go faster
   int gap_to_target_bearing;
   
-  gap_to_target_bearing=abs(current_bearing-target_move.target_bearing);
+  gap_to_target_bearing=abs(current_bearing-current_move.target_bearing);
   if (gap_to_target_bearing>5)
   {
     rover.FL_motor.myspeed=128; 
@@ -229,6 +233,7 @@ void SegmentStatus::deliverRotationSegment() {
     rover.FR_motor.myspeed=-64;
     rover.RL_motor.myspeed=64;
     rover.RR_motor.myspeed=-64;
+    if (next_seg_available == false) {need_next_seg=true;}
   }
 }
 
@@ -262,7 +267,7 @@ boolean SegmentStatus::readCompass(){
   // this will give us the 8 bit bearing
    while (retries<4) { //checks requested bytes were received 3 retries max
       now=millis();
-      Serial1.write(CMPS_GET_ANGLE8);  // Request and read 8 bit angle
+      Serial1.write(ANGLE_8);  // Request and read 8 bit angle
       while (Serial1.available()<1 && millis()-now < 100); // need slave to send no less than requested
       if (Serial1.available()>0) {
         last_bearing=current_bearing;
@@ -373,24 +378,24 @@ void requestEvent() {
 // * motor_power x4 - byte x4
 
 // 20 bytes to be sent
-Wire1.write(segment.ticks_cum); //4 bytes
-Wire1.write(segment.millis_cum); // 4 bytes
-Wire1.write(segment.average_bearing); // 2 bytes
-Wire1.write(segment.current_bearing); // 2 bytes
-Wire1.write(segment.speed_step); // 2 bytes
-Wire1.write(rover.teta_point); // 2 bytes
-Wire1.write(rover.FL_motor.power); //1 byte
-Wire1.write(rover.FR_motor.power); //1 byte
-Wire1.write(rover.RL_motor.power); //1 byte
-Wire1.write(rover.RR_motor.power); //1 byte
+Wire.write(segment.ticks_cum); //4 bytes
+Wire.write(segment.millis_cum); // 4 bytes
+Wire.write(segment.average_bearing); // 2 bytes
+Wire.write(segment.current_bearing); // 2 bytes
+Wire.write(segment.speed_step); // 2 bytes
+Wire.write(rover.teta_point); // 2 bytes
+Wire.write(rover.FL_motor.power); //1 byte
+Wire.write(rover.FR_motor.power); //1 byte
+Wire.write(rover.RL_motor.power); //1 byte
+Wire.write(rover.RR_motor.power); //1 byte
 }
 
 void driveRover(){
   segment.updateStatus();
-  if (target_move.segment_type == 1){
+  if (current_move.segment_type == 1){
     segment.deliverStraightSegment();
   }
-  if (target_move.segment_type == 0){
+  if (current_move.segment_type == 0){
     segment.deliverRotationSegment();
   }
   rover.move_rover();
@@ -402,13 +407,9 @@ int i=0;
 void loop(){
    if (millis()-last_moment>500){ // for testing purpose
      last_moment=millis();
-      test_compass();
-//     Serial.println(last_moment);
-//     Serial.print(readDecoders(&segment));
-//     Serial.println(segment.FL_ticks_step);
-//     Serial.println(segment.FR_ticks_step);
-//     Serial.println(segment.RL_ticks_step);
-//     Serial.println(segment.RR_ticks_step);
+//      test_compass();
+     Serial.println(last_moment);
+     test_decoders();
    }
 }
 
