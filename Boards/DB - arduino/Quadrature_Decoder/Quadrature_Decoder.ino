@@ -6,11 +6,17 @@
 // 2 = FLPulse PORTE4
 // 22 = FLDir PORTA0
 // 3 = FRPulse PORTE5
-// 24 = FRDir PORTA2
+// 23 = FRDir PORTA2
 // 18 = RLPulse PORTD3
-// 52 = RLDir PORTB1
+// 24 = RLDir PORTB1
 // 19 = RFPulse PORTD2
-// 50 = RFDir PORTB3
+// 25 = RFDir PORTB3
+
+// 50 = MISO
+// 52 = SCK
+// 51 = MOSI
+// 53 = SS (HW)
+
 // 20 = SDA
 // 21 = SCL
  

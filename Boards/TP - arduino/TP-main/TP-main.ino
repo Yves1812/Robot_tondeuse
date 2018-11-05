@@ -50,10 +50,10 @@
 #define SS_HW 53
 
 struct segmentOrder{
-  int segment_type; //0 in case rotation, 1 in case straight
+  byte segment_type; //0 in case rotation, 1 in case straight
   long target_ticks;
-  int target_bearing;
-  int target_speed;
+  byte target_bearing;
+  byte target_speed;
 };
 
 class Motor{
@@ -97,7 +97,7 @@ class SegmentStatus {
     long ticks_cum;
     int gap_cum;
     unsigned long millis_cum;
-    short speed_cum;
+    byte speed_cum;
   
     short FL_ticks_step;
   	short FR_ticks_step;
@@ -106,11 +106,11 @@ class SegmentStatus {
   	short ticks_step;
     short gap_step;
   	int millis_step;
-  	short speed_step;
+  	byte speed_step;
   	
-  	short last_bearing;
-    short current_bearing;
-    short average_bearing;
+  	byte last_bearing;
+    byte current_bearing;
+    byte average_bearing;
 
     SegmentStatus(void);
     void begin(void);
@@ -121,7 +121,7 @@ class SegmentStatus {
     void deliverRotationSegment(void);
 };
 
-// global variabes
+// *************** global variabes ********************** //
 unsigned long last_moment=0;
 int I2C_buffer[5];
 boolean next_seg_available, need_next_seg;
@@ -129,6 +129,7 @@ Rover rover;
 SegmentStatus segment;
 segmentOrder current_move;
 segmentOrder next_move;
+// **************************************************** //
 
 // Classes member functions
 SegmentStatus::SegmentStatus(void){
@@ -351,6 +352,7 @@ void setup() {
 // I2C bus set-up
   Wire.begin(0x16);               // join MU i2c bus as a slave with address 0x16 (0-7 eserved) 
   Wire.onRequest(requestEvent);   // register event on MU bus
+  Wire.onReceive(receiveEvent);
   Serial.println("I2C Main Unit bus initiated as a slave");
   
 // SPI bus initiated
@@ -367,6 +369,12 @@ void setup() {
 }
 
 // Interrupt service routines
+void receiveEvent(int howMany) {
+  while (0 < Wire.available()) { // loop through all but the last
+    byte c = Wire.read(); // receive byte as a character
+  }
+}
+
 void requestEvent() {
 // I2C write data in response to IMU request
 // * ticks_cum - long
@@ -388,6 +396,7 @@ Wire.write(rover.FL_motor.power); //1 byte
 Wire.write(rover.FR_motor.power); //1 byte
 Wire.write(rover.RL_motor.power); //1 byte
 Wire.write(rover.RR_motor.power); //1 byte
+Wire.write(need_next_seg); //1 byte
 }
 
 void driveRover(){
@@ -405,7 +414,7 @@ int i=0;
 
 // Loop routine
 void loop(){
-   if (millis()-last_moment>500){ // for testing purpose
+   if (millis()-last_moment>100){ // for testing purpose
      last_moment=millis();
 //      test_compass();
      Serial.println(last_moment);
