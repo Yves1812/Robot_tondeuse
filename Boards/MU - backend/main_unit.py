@@ -4,16 +4,20 @@ import logging
 import time
 import datetime
 
+#### Orthonormal reference ###############
+# Y axis pointing towards true north     #
+# X axis pointing towards (true) west    #
+# unit = 1 meter                         #
+# 0,0 at robot charging station          #
+##########################################
+
 roverdb='C:\\Users\\Yves1812\\Documents\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
 pi_I2C_bus=1
 TP_board_I2C_address=0x60
 position_register=1
 speed_register=9
 power_register=14
-
-
-#define CMPS12_ADDRESS 0x60  // Address of CMPS12 shifted right one bit for arduino wire library
-#define ANGLE_8  1           // Register to read 8bit angle from
+TICKS_PER_METER=350 #number of ticks per meter @ full speed + 10% needs to be confirmed and potentially adjusted
 
 
 class Device(object):
@@ -28,99 +32,31 @@ class Device(object):
         self._bus = SMBus(busnum)
         self._logger = logging.getLogger('Adafruit_I2C.Device.Bus.{0}.Address.{1:#0X}'.format(busnum, address))
 
-
-    def writeRaw8(self, value):
-        """Write an 8-bit value on the bus (without register)."""
-        value = value & 0xFF
-        self._bus.write_byte(self._address, value)
-        self._logger.debug("Wrote 0x%02X",
-                     value)
-
-    def write8(self, register, value):
-        """Write an 8-bit value to the specified register."""
+    def write8(self, value, register=0):
+        """Write an 8-bit value to the specified register. use register 0 if not needed"""
         value = value & 0xFF
         self._bus.write_byte_data(self._address, register, value)
         self._logger.debug("Wrote 0x%02X to register 0x%02X",
                      value, register)
 
-    def write16(self, register, value):
-        """Write a 16-bit value to the specified register."""
-        value = value & 0xFFFF
-        self._bus.write_word_data(self._address, register, value)
-        self._logger.debug("Wrote 0x%04X to register pair 0x%02X, 0x%02X",
-                     value, register, register+1)
+    def readU8(self, register=0):
+        """Read an unsigned byte from the specified register. use 0 if egister is not needed"""
+        result = self._bus.read_byte_data(self._address, register) & 0xFF
+        self._logger.debug("Read 0x%02X from register 0x%02X",result, register)
+        return result
 
-    def writeList(self, register, data):
-        """Write bytes to the specified register."""
+    def writeList(self, data, register=0):
+        """Write bytes to the specified register. Use 0 if register is not needed"""
         self._bus.write_i2c_block_data(self._address, register, data)
         self._logger.debug("Wrote to register 0x%02X: %s", register, data)
 
-    def readList(self, register, length):
-        """Read a length number of bytes from the specified register.  Results
+    def readList(self, length, register=0):
+        """Read a length number of bytes from the specified register, use 0 if register is not needed.  Results
         will be returned as a bytearray."""
         results = self._bus.read_i2c_block_data(self._address, register, length)
         self._logger.debug("Read the following from register 0x%02X: %s", register, results)
         return results
 
-    def readRaw8(self):
-        """Read an 8-bit value on the bus (without register)."""
-        result = self._bus.read_byte(self._address) & 0xFF
-        self._logger.debug("Read 0x%02X",result)
-        return result
-
-    def readU8(self, register):
-        """Read an unsigned byte from the specified register."""
-        result = self._bus.read_byte_data(self._address, register) & 0xFF
-        self._logger.debug("Read 0x%02X from register 0x%02X",result, register)
-        return result
-
-    def readS8(self, register):
-        """Read a signed byte from the specified register."""
-        result = self.readU8(register)
-        if result > 127:
-            result -= 256
-        return result
-
-    def readU16(self, register, little_endian=True):
-        """Read an unsigned 16-bit value from the specified register, with the
-        specified endianness (default little endian, or least significant byte
-        first)."""
-        result = self._bus.read_word_data(self._address,register) & 0xFFFF
-        self._logger.debug("Read 0x%04X from register pair 0x%02X, 0x%02X", result, register, register+1)
-        # Swap bytes if using big endian because read_word_data assumes little
-        # endian on ARM (little endian) systems.
-        if not little_endian:
-            result = ((result << 8) & 0xFF00) + (result >> 8)
-        return result
-
-    def readS16(self, register, little_endian=True):
-        """Read a signed 16-bit value from the specified register, with the
-        specified endianness (default little endian, or least significant byte
-        first)."""
-        result = self.readU16(register, little_endian)
-        if result > 32767:
-            result -= 65536
-        return result
-
-    def readU16LE(self, register):
-        """Read an unsigned 16-bit value from the specified register, in little
-        endian byte order."""
-        return self.readU16(register, little_endian=True)
-
-    def readU16BE(self, register):
-        """Read an unsigned 16-bit value from the specified register, in big
-        endian byte order."""
-        return self.readU16(register, little_endian=False)
-
-    def readS16LE(self, register):
-        """Read a signed 16-bit value from the specified register, in little
-        endian byte order."""
-        return self.readS16(register, little_endian=True)
-
-    def readS16BE(self, register):
-        """Read a signed 16-bit value from the specified register, in big
-        endian byte order."""
-        return self.readS16(register, little_endian=False)
 
 class Rover(object):
     def __init__(self,x=0.0,y=0.0,speedx=0.0,speedy=0.0,teta_point=0,bearing8=0,ice_status=False, battery_level=None,traction_power=None, messages=[]):
@@ -143,7 +79,6 @@ class Rover(object):
 
     def query_db_status(self):
         self.cursor.execute("select * from traction_status order by timestamp desc")
-
         latest=self.cursor.fetchone()
         if latest :
             self.x=latest['x']
@@ -156,7 +91,7 @@ class Rover(object):
 ##            self.messages=latest['messages']
         
     def save_rover_status(self):
-        values=(self.x, self.y,self.vx, self.vy,self.bearing8,self.teta_point,self.ice_status,self.battery_level,self.traction_power)##self.messages
+        values=(self.x, self.y, self.vx, self.vy,self.bearing8,self.teta_point,self.ice_status,self.battery_level,self.traction_power)##self.messages
         self.cursor.execute("""insert into traction_status (x, y,vx,vy,ice_status, battery_level, power) values (?, ?, ?, ?, ?, ?, ?)""", values)
 
     def get_rover_position(self):
@@ -191,6 +126,15 @@ class Rover(object):
     def manual(self):
         pass
 
+class segment(object):
+    def __init__(x0,y0,x1,y1,speed):
+        self.x0=x0
+        self.y0=y0
+        self.x1=x1
+        self.y1=y1
+        self.speed=(int)(speed*255)
+        self.target_ticks=((x1-x0)^2+(y1-y0)^2)^(1/2)*TICKS_PER_METER
+        
 print("Welcome to my rover")
 
 myrover=Rover()
