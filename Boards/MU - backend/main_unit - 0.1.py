@@ -4,6 +4,8 @@ import logging
 import time
 import datetime
 from math import atan2
+import json
+from pprint import pprint
 
 #### Orthonormal reference ###############
 # Y axis pointing towards true north     #
@@ -13,7 +15,8 @@ from math import atan2
 ##########################################
 
 roverdb='C:\\Users\\Yves1812\\Documents\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
-routing_path='C:\\Users\\Yves1812\\Documents\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\data\\'
+routing_path='C:\\Users\\Yves1812\\Documents\\GitHub\\Robot_tondeuse\\Data\\'
+routing_file='test_routing'
 
 pi_I2C_bus=1
 TP_board_I2C_address=0x60
@@ -34,6 +37,13 @@ class Device(object):
         self._address = address
         self._bus = SMBus(busnum)
         self._logger = logging.getLogger('Adafruit_I2C.Device.Bus.{0}.Address.{1:#0X}'.format(busnum, address))
+
+    def writeByte(self, value):
+        """Write an 8-bit value"""
+        value = value & 0xFF
+        self._bus.write_byte(self._address, register, value)
+        self._logger.debug("Wrote 0x%02X to register 0x%02X",
+                     value, register)
 
     def write8(self, value, register=0):
         """Write an 8-bit value to the specified register. use register 0 if not needed"""
@@ -62,7 +72,7 @@ class Device(object):
 
 class Rover(object):
     def __init__(self,x=0.0,y=0.0,speedx=0.0,speedy=0.0,teta_point=0,bearing8=0,ice_status=False, battery_level=None,traction_power=[0,0,0,0], messages=[]):
-        self.current_routing=routing()
+        self.routing=routing()
 
         self.x=x
         self.y=y
@@ -99,9 +109,10 @@ class Rover(object):
         self.cursor.execute("""insert into traction_status (x, y,vx,vy,ice_status, battery_level, power) values (?, ?, ?, ?, ?, ?, ?)""", values)
 
     def get_active_segment_status(self):
+        # need to update Arduino to reflect register read and not only nb of bytes required
         if self.routing.active_segment != None :
             length=16
-            decoder_data=TP_board.readList(length, active_segment_register)
+            decoder_data=self.TP_board.readList(length, active_segment_register)
             self.routing.active_segment_status.ticks_cum=decoder_data[0]*256+decoder_data[1]
             self.routing.active_segment_status.ticks_cum=(((decoder_data[2]*256+decoder_data[3])*256+decoder_data[4])*256+decoder_data[5])
             self.routing.active_segment_status.millis_cum=(((decoder_data[6]*256+decoder_data[7])*256+decoder_data[8])*256+decoder_data[9])
@@ -109,7 +120,7 @@ class Rover(object):
             self.routing.active_segment_status.current_bearing=decoder_data[11]
             self.routing.active_segment_status.speed_step=decoder_data[12]
             self.routing.active_segment_status.speed_step=decoder_data[13]*256+decoder_data[14]
-            self.routing.next_segment_needed= (Boolean) decoder_data[15]
+            self.routing.next_segment_needed=decoder_data[15]
             if self.routing.next_segment_needed :
                 self.push_segment()
         else :
@@ -117,7 +128,7 @@ class Rover(object):
             
     def get_rover_power(self):
         length=4
-        decoder_data=TP_board.readList(length, power_register)
+        decoder_data=self.TP_board.readList(length, power_register)
         self.traction_power[0]=decoder_data[0]
         self.traction_power[1]=decoder_data[1]
         self.traction_power[2]=decoder_data[2]
@@ -125,12 +136,26 @@ class Rover(object):
 # not implemented        self.ice_status=decoder_data[2]
 
     def push_segment(self):
-        
+        data=[]
+        data.append(self.routing.segments[self.routing.active_segmen+1].segment_type)
+        data.append((self.routing.segments[self.routing.active_segmen+1].segment_id & 0xFF00) >> 8) #MSB first
+        data.append((self.routing.segments[self.routing.active_segmen+1].segment_id & 0xFF)) #LSB second
+        data.append((self.routing.segments[self.routing.active_segmen+1].target_ticks & 0xFF000000) >> 24 ) #MSB first
+        data.append((self.routing.segments[self.routing.active_segmen+1].target_ticks & 0x00FF0000) >> 16) 
+        data.append((self.routing.segments[self.routing.active_segmen+1].target_ticks & 0x0000FF00) >> 8) 
+        data.append((self.routing.segments[self.routing.active_segmen+1].target_ticks & 0x000000FF)) 
+        data.append(self.routing.segments[self.routing.active_segmen+1].target_bearing)
+        data.append(self.routing.segments[self.routing.active_segmen+1].target_speed)
+# need to add error management
+        self.TP_board.writeList(data,0x30)
+        self.routing.active_segmen+=1
 
-    def set_routing(self):
-        pass
+    def set_routing(self, routing_file):
+        self.routing.loadRouting(routing_file)
+                    
     def emergency_stop(self):
         pass
+
     def manual(self):
         pass
         
@@ -169,8 +194,11 @@ class routing(object):
 
     def loadRouting(self):
         with open(routing_path+self.name+".json", 'r') as routing_file:
-        # load routing as a JSON
-        pass
+          routing_data=json.load(routing_file)
+        self.name=routing_data["name"]
+        self.routing_type=routing_data["routing_type"]
+        for item in routing_data["perimeter"]:
+           self.perimeter.append(waypoint(item[0],item[1]))
 
 class waypoint(object):
     def __init__(self,x,y):
@@ -214,22 +242,26 @@ class segment_status(object):
         self.target_speed=target_speed
 
         
-print("Welcome to my rover")
-
+print("Welcome to my rover, Yves !")
 myrover=Rover()
+myrover.routing.loadRouting(routing_file)
+myrover.routing.buildSegments()
+for item in myrover.routing.segments:
+    print(item)
+                                 
 ##myrover.query_db_status()
 ##print('x=',myrover.x)
 ##print('y=',myrover.y)
-
-
-print(datetime.datetime.now())
-for i in range(10000):
-    myrover.get_rover_status(0)
-print(datetime.datetime.now())
-
+##
+##print(datetime.datetime.now())
+##for i in range(10000):
+##    myrover.get_rover_status(0)
+##print(datetime.datetime.now())
 ##    print("Bearing 8: ",myrover.bearing8*360/255)
 ##    print("Bearing 16: ", myrover.bearing16/10)
 ##    print("pitch: ",myrover.pitch)
 ##    print("Roll: ",myrover.roll)
 ##    print("")
 #    time.sleep(10)
+
+

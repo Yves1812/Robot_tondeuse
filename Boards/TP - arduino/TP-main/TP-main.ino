@@ -149,8 +149,27 @@ SegmentStatus::SegmentStatus(void){
 
 void SegmentStatus::begin(void){
   //Initiate compass   
-  readCompass();
-  average_bearing=last_bearing;
+    FL_ticks_cum=0;
+    FR_ticks_cum=0;
+    RL_ticks_cum=0;
+    RR_ticks_cum=0;
+    ticks_cum=0;
+    gap_cum=0;
+    millis_cum=0;
+    speed_cum=0;
+  
+    FL_ticks_step=0;
+    FR_ticks_step=0;
+    RL_ticks_step=0;
+    RR_ticks_step=0;
+    ticks_step=0;
+    gap_step=0;
+    millis_step=0;
+    speed_step=0;
+    
+    last_bearing=0;
+    readCompass();
+    average_bearing=last_bearing;
 }
 
 boolean SegmentStatus::updateStatus(){
@@ -471,10 +490,14 @@ void driveRover(){
   else
   {
     if (next_seg_available){
-      current_move=next_move;
+      current_move.segment_type=next_move.segment_type; //0 in case rotation, 1 in case straight
+      current_move.segment_id=next_move.segment_id;
+      current_move.target_ticks=next_move.target_ticks;
+      current_move.target_bearing=next_move.target_bearing;
+      current_move.target_speed=next_move.target_speed;
       next_seg_available=false;
       seg_completed=false;
-// need to reset current_move data as well
+      segment.begin();
     }
   }
 }
