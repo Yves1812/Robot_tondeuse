@@ -1,1 +1,1 @@
-{"name":"test_routing", "routing_type":1, "perimeter" : [[0,1],[0,2]], "speed":255}
+{"name":"test_routing", "routing_type":1, "perimeter" : [[0,0],[0,1],[0,2],[1,2],[1,1],[0,0]], "speed":255}

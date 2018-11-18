@@ -7,11 +7,8 @@
 // nominal rotation speed 62°/s or 4.39 bits/s (assuming radius of wheel to rotation center = 0,5m) 
 
 // to do
-// set-up the I2C connection as slave to MU
-// set-up the SPI connection as master to DB
 // set-up the UART connection to read compass
 // create 0.1s drumbeat and consecutive actions (read decoders, determine adjustments to deliver segment, apply adjustment, ask for next segment when relevant
-// clarify communication protocol with MU - MU sends request for x bytes, TP will send current segment cum status:
 // * ticks_cum - long
 // * millis_cum -long
 // * average_bearing - byte
@@ -49,9 +46,16 @@
 #define SS_DECODER_BOARD 22
 #define SS_HW 53
 
+// I2C address and registers
+#define SLAVE_ADDRESS 0x16
+#define SEGMENT_REGISTER 10
+#define MOTORS_REGISTER 20
+#define ROUTING_REGISTER 30
+
+
 struct segmentOrder{
   byte segment_type; //0 in case rotation, 1 in case straight
-  unsigned short segment_id;
+  unsigned int segment_id;
   long target_ticks;
   byte target_bearing;
   byte target_speed;
@@ -82,7 +86,7 @@ class Rover {
 	  int vx;
 	  int vy;
 	  byte bearing;
-	  int teta_point;
+	  byte teta_point;
 
     Rover(void);
     void begin(void);
@@ -381,7 +385,7 @@ void setup() {
   rover.begin();
 
 // I2C bus set-up
-  Wire.begin(0x16);               // join MU i2c bus as a slave with address 0x16 (0-7 eserved) 
+  Wire.begin(SLAVE_ADDRESS);               // join MU i2c bus as a slave with address 0x16 (0-7 reserved) 
   Wire.onRequest(requestEvent);   // register event on MU bus
   Wire.onReceive(receiveEvent);
   Serial.println("I2C Main Unit bus initiated as a slave");
@@ -405,35 +409,45 @@ void receiveEvent(int howMany) {
   //long target_ticks 4 bytes
   //target_bearing 1 byte
   //target_speed 1 byte
+  
   byte buff[4];
   long ticks=0;
 
-  if (howMany == 1){
+  if (I2Cregister==0 && howMany == 1){
     I2Cregister=Wire.read();
   }
-  if (howMany == 9){
-    next_move.segment_type = Wire.read();
-
-    buff[0]=Wire.read();
-    buff[1]=Wire.read();
-    next_move.segment_id=word(buff[0],buff[1]);
-
-    buff[0]=Wire.read();
-    buff[1]=Wire.read();
-    buff[2]=Wire.read();
-    buff[3]=Wire.read();
-    ticks=buff[0];
-    ticks+=buff[1] << 8;
-    ticks+=buff[2] << 16;
-    ticks+=buff[3] << 24;
-    next_move.target_ticks = ticks;
-
-    next_move.target_bearing = Wire.read();
-    next_move.target_speed = Wire.read();
-    next_seg_available=true;
-  }
   else{
-    Serial.println("Error receiving data");
+    if (howMany == 10){
+      I2Cregister=Wire.read();
+      if (I2Cregister == ROUTING_REGISTER){
+        next_move.segment_type = Wire.read();
+    
+        buff[0]=Wire.read();
+        buff[1]=Wire.read();
+        next_move.segment_id=word(buff[0],buff[1]);
+    
+        buff[0]=Wire.read();
+        buff[1]=Wire.read();
+        buff[2]=Wire.read();
+        buff[3]=Wire.read();
+        ticks=buff[0];
+        ticks+=buff[1] << 8;
+        ticks+=buff[2] << 16;
+        ticks+=buff[3] << 24;
+        next_move.target_ticks = ticks;
+    
+        next_move.target_bearing = Wire.read();
+        next_move.target_speed = Wire.read();
+        next_seg_available=true;
+        I2Cregister=0;
+      }
+      else{
+        Serial.println("Error receiving data");
+      }
+    }
+    else{
+      Serial.println("Error receiving data");
+    }
   }
 }
 
@@ -446,32 +460,35 @@ void requestEvent() {
   // * speed_step - float
   // * teta_point float
   // * motor_power x4 - byte x4
+  byte buf[14];
   
-  // 14 bytes to be sent
-  if (I2Cregister==10){
+  // 16 bytes to be sent
+  if (I2Cregister==SEGMENT_REGISTER){
     // 16 bytes to be sent
-    Wire.write(current_move.segment_id); //2 bytes
-    Wire.write(segment.ticks_cum); //4 bytes
-    Wire.write(segment.millis_cum); // 4 bytes
-    Wire.write(segment.average_bearing); // 1 byte
-    Wire.write(segment.current_bearing); // 1 byte
-    Wire.write(segment.speed_step); // 1 byte
-    Wire.write(rover.teta_point); // 2 bytes
+    memcpy(buf, (int *) current_move.segment_id, sizeof(current_move.segment_id)); // 2 bytes
+    memcpy(buf+2, (long *) segment.ticks_cum, sizeof(segment.ticks_cum)); // 4 bytes
+    memcpy(buf+4, (long *) segment.millis_cum, sizeof(segment.millis_cum)); // 4 bytes
+    buf[10]=segment.average_bearing; // 1 byte
+    buf[11]=segment.current_bearing; // 1 byte
+    buf[12]=segment.speed_step; // 1 byte
+//    Wire.write(rover.teta_point); // 2 bytes TBD
     if (seg_completed && (next_seg_available == false)){
-      Wire.write(true); //1 byte
+      buf[13]=true; //1 byte
     }
     else
     {
-      Wire.write(false); //1 byte
+      buf[13]=false; //1 byte
     }
+    Wire.write(buf,14);
     I2Cregister=0;
   }
-  if (I2Cregister==20){
+  if (I2Cregister==MOTORS_REGISTER){
     // 4 bytes to be sent    
-    Wire.write(rover.FL_motor.power); //1 byte
-    Wire.write(rover.FR_motor.power); //1 byte
-    Wire.write(rover.RL_motor.power); //1 byte
-    Wire.write(rover.RR_motor.power); //1 byte
+    buf[0]=rover.FL_motor.power; //1 byte
+    buf[1]=rover.FR_motor.power; //1 byte
+    buf[2]=rover.RL_motor.power; //1 byte
+    buf[3]=rover.RR_motor.power; //1 byte
+    Wire.write(buf,4);
     I2Cregister=0;
   }
 }
@@ -508,11 +525,16 @@ int i=0;
 void loop(){
    if (millis()-last_moment>100){ // for testing purpose
      last_moment=millis();
+     test_I2C_wo_segment_receiving();
+//     test_I2C_w_segment_receiving();
 //      test_compass();
      Serial.println(last_moment);
-     test_decoders();
+//     test_decoders();
    }
 }
+
+
+// ******************* Test routines - commented out in production version **************************** // 
 
 void basic_test(){
   Serial.println(last_moment);
@@ -540,5 +562,34 @@ void test_compass(){
     Serial.print("Read successfull - ");
   }
   Serial.println(segment.current_bearing);
+}
+
+void test_I2C_wo_segment_receiving(){
+  current_move.segment_id=254*253; // 2 bytes
+  segment.ticks_cum= 254*254*254*253; // 4 bytes
+  segment.millis_cum= 254*254*254*252; // 4 bytes
+  segment.average_bearing=254; // 1 byte
+  segment.current_bearing=253; // 1 byte
+  segment.speed_step=252; // 1 byte
+  seg_completed=false;
+  rover.FL_motor.power=128; //1 byte
+  rover.FR_motor.power=129; //1 byte
+  rover.RL_motor.power=130; //1 byte
+  rover.RR_motor.power=131; //1 byte
+}
+
+void test_I2C_w_segment_receiving(){
+  current_move.segment_id=254*253; // 2 bytes
+  segment.ticks_cum= 254*254*254*253; // 4 bytes
+  segment.millis_cum= 254*254*254*252; // 4 bytes
+  segment.average_bearing=254; // 1 byte
+  segment.current_bearing=253; // 1 byte
+  segment.speed_step=252; // 1 byte
+  seg_completed=true;
+  next_seg_available=false;
+  rover.FL_motor.power=128; //1 byte
+  rover.FR_motor.power=129; //1 byte
+  rover.RL_motor.power=130; //1 byte
+  rover.RR_motor.power=131; //1 byte
 }
 
