@@ -4,7 +4,7 @@ import logging
 from math import sqrt
 import time
 import datetime
-from math import atan2
+from math import atan2, cos, sin
 import json
 from pprint import pprint
 
@@ -34,8 +34,11 @@ active_segment_register=10
 motors_power_regiser=20
 routing_register=30
 
+
+##### Rover physical data #####
 TICKS_PER_METER=350 #number of ticks per meter @ full speed + 10% needs to be confirmed and potentially adjusted
 TICKS_PER_SECOND=175
+MOWING_WIDTH=0.4 #meter
 
 
 ##class Device(object):
@@ -85,10 +88,12 @@ TICKS_PER_SECOND=175
 class Rover(object):
     def __init__(self,x=0.0,y=0.0,speedx=0.0,speedy=0.0,teta_point=0,bearing8=0,ice_status=False, battery_level=None,traction_power=[0,0,0,0], messages=[]):
         self.routing=routing()
-
-        self.x=x
+        #position from completed segments
+        self.x=x 
         self.y=y
-
+        #delta position from current segment
+        self.delta_x=0
+        self.delta_y=0
         self.vx=speedx
         self.vy=speedy
         self.bearing8=bearing8
@@ -98,12 +103,16 @@ class Rover(object):
         self.battery_level=battery_level
         self.traction_power=traction_power
         self.messages=messages
-        self.conn = sqlite3.connect(roverdb)
-        self.conn.row_factory = sqlite3.Row
-        self.cursor=self.conn.cursor()
         self.TP_board=None #Device(TP_board_I2C_address,pi_I2C_bus) # need to put here the right bus number
         
     def query_rover_status(self):
+    # query rover status from the database
+        #Connect to database
+        self.conn = sqlite3.connect(roverdb)
+        self.conn.row_factory = sqlite3.Row
+        self.cursor=self.conn.cursor()
+
+        # query database
         self.cursor.execute("select * from traction_status order by timestamp desc")
         latest=self.cursor.fetchone()
         if latest :
@@ -115,28 +124,56 @@ class Rover(object):
             self.battery_level=latest['battery_level']
             ## Need to manage 4 power values            self.traction_power=latest['power']
             ## self.messages=latest['messages']
+        self.conn.close()
         
     def save_rover_status(self):
+        #Connect to database
+        self.conn = sqlite3.connect(roverdb)
+        self.conn.row_factory = sqlite3.Row
+        self.cursor=self.conn.cursor()
+
         values=(self.x, self.y, self.vx, self.vy,self.bearing8,self.teta_point,self.ice_status,self.battery_level,self.traction_power[0],self.traction_power[1],self.traction_power[2],self.traction_power[3])##self.messages
         self.cursor.execute("""insert into traction_status (x, y,vx,vy,ice_status, battery_level, power) values (?, ?, ?, ?, ?, ?, ?)""", values)
 
+        conn.commit()
+
     def get_active_segment_status(self):
+    # Obtain progress on current segment execution from TP board (via I2C)
         if self.routing.active_segment != None :
             length=16
-            decoder_data=self.TP_board.readList(length, active_segment_register)
-            self.routing.active_segment_status.ticks_cum=decoder_data[0]*256+decoder_data[1]
-            self.routing.active_segment_status.ticks_cum=(((decoder_data[2]*256+decoder_data[3])*256+decoder_data[4])*256+decoder_data[5])
-            self.routing.active_segment_status.millis_cum=(((decoder_data[6]*256+decoder_data[7])*256+decoder_data[8])*256+decoder_data[9])
-            self.routing.active_segment_status.average_bearing=decoder_data[10]
-            self.routing.active_segment_status.current_bearing=decoder_data[11]
-            self.routing.active_segment_status.speed_step=decoder_data[12]
-            self.routing.active_segment_status.speed_step=decoder_data[13]*256+decoder_data[14]
-            self.routing.next_segment_needed=decoder_data[15]
+##            decoder_data=self.TP_board.readList(length, active_segment_register)
+##            self.routing.active_segment_status.segment_id=decoder_data[0]*256+decoder_data[1]
+##            self.routing.active_segment_status.ticks_cum=(((decoder_data[2]*256+decoder_data[3])*256+decoder_data[4])*256+decoder_data[5])
+##            self.routing.active_segment_status.millis_cum=(((decoder_data[6]*256+decoder_data[7])*256+decoder_data[8])*256+decoder_data[9])
+##            self.routing.active_segment_status.average_bearing=decoder_data[10]
+##            self.routing.active_segment_status.current_bearing=decoder_data[11]
+##            self.routing.active_segment_status.speed_step=decoder_data[12]
+##            #self.routing.active_segment_status.teta_point=decoder_data[13]
+##            self.routing.next_segment_needed=decoder_data[13]
+            self.routing.active_segment_status.segment_id=1
+            self.routing.active_segment_status.ticks_cum=250
+            self.routing.active_segment_status.millis_cum=600
+            self.routing.active_segment_status.average_bearing=30
+            self.routing.active_segment_status.current_bearing=35
+            self.routing.active_segment_status.speed_step=200
+            self.routing.next_segment_needed=1
             if self.routing.next_segment_needed :
-                self.push_segment()
+                self.update_rover_position()
+                self.push_segment(self.routing.active_segment+1)
         else :
             print("no active segment to read")
-            
+
+    def update_rover_position(self):
+    # update rover position data based on latest segment status and returns current x,y coordinate as a waypoint
+        self.delta_x=self.routing.active_segment_status.ticks_cum / TICKS_PER_METER * cos(self.routing.active_segment_status.current_bearing*6.28/255)
+        self.delta_y=self.routing.active_segment_status.ticks_cum / TICKS_PER_METER * sin(self.routing.active_segment_status.current_bearing*6.28/255)
+        if self.routing.next_segment_needed :
+            self.x+=self.delta_x
+            self.y+=self.delta_y
+            return waypoint(self.x, self.y)
+        else:
+            return waypoint(self.x+self.delta_x, self.y+self.delta_y)
+        
     def get_rover_power(self):
         length=4
         decoder_data=self.TP_board.readList(length, power_register)
@@ -146,23 +183,32 @@ class Rover(object):
         self.traction_power[3]=decoder_data[3]
 # not implemente  self.ice_status=decoder_data[2]
 
-    def push_segment(self):
+    def push_segment(self, segment):
         data=[]
-        data.append(self.routing.segments[self.routing.active_segmen+1].segment_type)
-        data.append((self.routing.segments[self.routing.active_segmen+1].segment_id & 0xFF00) >> 8) #MSB first
-        data.append((self.routing.segments[self.routing.active_segmen+1].segment_id & 0xFF)) #LSB second
-        data.append((self.routing.segments[self.routing.active_segmen+1].target_ticks & 0xFF000000) >> 24 ) #MSB first
-        data.append((self.routing.segments[self.routing.active_segmen+1].target_ticks & 0x00FF0000) >> 16) 
-        data.append((self.routing.segments[self.routing.active_segmen+1].target_ticks & 0x0000FF00) >> 8) 
-        data.append((self.routing.segments[self.routing.active_segmen+1].target_ticks & 0x000000FF)) 
-        data.append(self.routing.segments[self.routing.active_segmen+1].target_bearing)
-        data.append(self.routing.segments[self.routing.active_segmen+1].target_speed)
+        data.append(self.routing.segments[segment].segment_type)
+        data.append((self.routing.segments[segment].segment_id & 0xFF00) >> 8) #MSB first
+        data.append((self.routing.segments[segment].segment_id & 0xFF)) #LSB second
+        data.append((self.routing.segments[segment].target_ticks & 0xFF000000) >> 24 ) #MSB first
+        data.append((self.routing.segments[segment].target_ticks & 0x00FF0000) >> 16) 
+        data.append((self.routing.segments[segment].target_ticks & 0x0000FF00) >> 8) 
+        data.append((self.routing.segments[segment].target_ticks & 0x000000FF)) 
+        data.append(self.routing.segments[segment].target_bearing)
+        data.append(self.routing.segments[segment].target_speed)
         # need to add error management
-        self.TP_board.writeList(data,routing_register)
-        self.routing.active_segmen+=1
+##        self.TP_board.writeList(data,routing_register)
+        self.routing.segments[segment].print()
+        for item in data:
+            print(bin(item))
+        self.routing.active_segment=segment
 
     def set_routing(self):
         self.routing.loadRouting()
+
+    def move_rover(self):
+        if (self.routing.active_segment == None):
+            self.routing.active_segment=0
+        self.push_segment(self.routing.active_segment)
+        
                     
     def emergency_stop(self):
         pass
@@ -201,8 +247,35 @@ class routing(object):
                 waypoint0=waypoint
         if (self.routing_type==2) :
             # Calculate mowing trajectory
-            pass
-
+            # Calculation logic is to follow perimeter and move inner by mowing width at each lap
+            # Option 1 use HOMOTETIE of center = center of gravity of waypoints will work for convex shapes only => need to cut surface in covex polygons
+            # Option 2 TRANSLATE segments inner by mowing_width, check it does not cross any n-1 lap segment and calculate arrival point as intersection between translated segment and next one at lap n-1 minus mowing width
+            # If it does cross a former segment, go to (intersection - width/2) and resume calculation from this waypoint
+            # Go for option 2 as it should work on all kinds of shapes - becarefull when opposite segments are not // eg. triangle
+            # Check if perimeter is closed, else close it with a straight linebetween last waypoint and first
+            if (self.perimeter[0].x != self.perimeter[len(self.perimeter)].x or self.perimeter[0].y != self.perimeter[len(self.perimeter)].y): 
+                self.perimeter.append(self.perimeter[0])
+            # Calculate lap and create next lap until 
+            while distance to other border > MOWING_WIDTH
+            waypoint0=self.perimeter[0]
+            i=0
+            for waypoint in self.perimeter[1:]:
+                #need to confirm  atan angle in practice to be sure
+                if (waypoint.x-waypoint0.x)==0 :
+                    if ((waypoint.y-waypoint0.y)>0):
+                        heading=0
+                    else:
+                        heading=127
+                else:
+                    heading = (int) (255/6.2832*(3.1416/2-atan2((waypoint.y-waypoint0.y),(waypoint.x-waypoint0.x))))
+                self.segments.append(segment(0,i,0,heading,250))
+                self.segments.append(segment(1,i+1,(int)((sqrt((waypoint.x-waypoint0.x)**2+(waypoint.y-waypoint0.y)**2))*TICKS_PER_METER), heading, self.speed))
+                i=i+2
+                waypoint0=waypoint
+                
+    def distance_to_opposite_border :
+        # Returns distance to other border @90 degree vs current segment
+        
     def loadRouting(self):
         with open(routing_path+self.name+".json", 'r') as routing_file:
           routing_data=json.load(routing_file)
@@ -253,13 +326,16 @@ class segment(object):
         
 
 class segment_status(object):
-    def __init__(self,segment_id=0,target_ticks=None, target_bearing=None, target_speed=None):
+    #segment status stores progress in delivering current segment from TP Board
+    def __init__(self,segment_id=None):
         self.segment_type=0 #0 in case rotation, 1 in case straight
         self.segment_id=segment_id
-        self.target_ticks=target_ticks
-        self.target_bearing=target_bearing
-        self.target_speed=target_speed
-
+        self.ticks_cum=0
+        self.millis_cum=0
+        self.average_bearing=None
+        self.current_bearing=None
+        #self.teta_point=None not implemented
+        self.speed_step=None #speed_step is the speed mesured between the last two position measures made by TP board (@10Hz)
 
 if __name__ == "__main__":
 
@@ -270,7 +346,8 @@ if __name__ == "__main__":
     myrover.routing.buildSegments()
     for item in myrover.routing.segments:
         item.print()
-#    myrover.get_active_segment_status() # test get segment status and push segment if requested
+    myrover.move_rover()
+    myrover.get_active_segment_status() # test get segment status and push segment if requested
                                      
     ##myrover.query_db_status()
     ##print('x=',myrover.x)
