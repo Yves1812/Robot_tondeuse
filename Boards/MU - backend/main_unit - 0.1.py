@@ -94,6 +94,7 @@ class Rover(object):
         #delta position from current segment
         self.delta_x=0
         self.delta_y=0
+
         self.vx=speedx
         self.vy=speedy
         self.bearing8=bearing8
@@ -135,7 +136,8 @@ class Rover(object):
         values=(self.x, self.y, self.vx, self.vy,self.bearing8,self.teta_point,self.ice_status,self.battery_level,self.traction_power[0],self.traction_power[1],self.traction_power[2],self.traction_power[3])##self.messages
         self.cursor.execute("""insert into traction_status (x, y,vx,vy,ice_status, battery_level, power) values (?, ?, ?, ?, ?, ?, ?)""", values)
 
-        conn.commit()
+        self.conn.commit()
+        self.conn.close()
 
     def get_active_segment_status(self):
     # Obtain progress on current segment execution from TP board (via I2C)
@@ -200,6 +202,7 @@ class Rover(object):
         for item in data:
             print(bin(item))
         self.routing.active_segment=segment
+        self.routing.next_segment_needed=False
 
     def set_routing(self):
         self.routing.loadRouting()
@@ -209,7 +212,6 @@ class Rover(object):
             self.routing.active_segment=0
         self.push_segment(self.routing.active_segment)
         
-                    
     def emergency_stop(self):
         pass
 
@@ -247,11 +249,21 @@ class routing(object):
                 waypoint0=waypoint
         if (self.routing_type==2) :
             # Calculate mowing trajectory
+
             # Calculation logic is to follow perimeter and move inner by mowing width at each lap
             # Option 1 use HOMOTETIE of center = center of gravity of waypoints will work for convex shapes only => need to cut surface in covex polygons
             # Option 2 TRANSLATE segments inner by mowing_width, check it does not cross any n-1 lap segment and calculate arrival point as intersection between translated segment and next one at lap n-1 minus mowing width
             # If it does cross a former segment, go to (intersection - width/2) and resume calculation from this waypoint
             # Go for option 2 as it should work on all kinds of shapes - becarefull when opposite segments are not // eg. triangle
+            # When reaching last waypoint of lap
+            # - move towards inner side of area by Width orthogonaly to segment 1 or less if this would cross a segment of lap n-1, in this case set uncomplete inner move flag
+            # - draw segment // to segment 1 from lap before until crossing segment 2 minus 1/2 width
+            # ...
+            # - if incomplete inner move flag, check if completing inner move is now possible, do what is possible and adjust flag accordingly
+            # - draw segment // to segment 1 from lap before until crossing segment 2 minus 1/2 width
+            # ...
+
+
             # Check if perimeter is closed, else close it with a straight linebetween last waypoint and first
             if (self.perimeter[0].x != self.perimeter[len(self.perimeter)].x or self.perimeter[0].y != self.perimeter[len(self.perimeter)].y): 
                 self.perimeter.append(self.perimeter[0])
