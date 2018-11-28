@@ -35,8 +35,8 @@ class TractionStatus(db.Model):
     y = db.Column(db.Float)
     vx = db.Column(db.Float)
     vy = db.Column(db.Float)
-    teta_point = db.Column(db.Float)
-    bearing8 = db.Column(db.Float)
+#    teta_point = db.Column(db.Float)
+#    bearing8 = db.Column(db.Float)
     
     power = db.Column(db.Float)
     battery_level = db.Column(db.Float)

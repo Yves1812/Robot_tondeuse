@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+<h1 class="titre">Sélectionner la route désirée</h1>
+<div class="field">
+    <form action = "http://localhost:5000/traction_status" method = "POST">
+       <select name="route">
+        {% for file in files %}
+         <option value="{{file}}">{{file}}</option>
+        {% endfor %}
+        </select>         
+       <input type = "submit" value="Submit" />
+    </form>
+</div>
+    
+{% endblock %}

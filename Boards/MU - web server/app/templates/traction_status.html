@@ -13,13 +13,15 @@
     <p> </p>
     <button>EMERGENCY STOP</button>
     <p> </p>    
-    <form action = "http://localhost:5000/uploader" method = "POST" enctype = "multipart/form-data">
-    <p>Active routing: {% if loaded_file %}{{ loaded_file }} is {{file_status}} {% else %}none{% endif %}</p>
+    <p>Active routing: {% if loaded_route != None %}{{ loaded_route }} {% else %}none{% endif %}</p>
     <p> </p>
 	<button type="button" class="btn btn-primary">Play</button> <button type="button" class="btn btn-primary">Pause</button> <button type="button" class="btn btn-primary">Stop</button>
     <p> </p>
-	<p>Select a routing <button type="button">Parcourir...</button></p>
-    <label for="new_routing">Upload a routing</label><input type = "file" name = "new_routing"/><input type = "submit"/>
+    <form action="{{ url_for('select_route') }}">
+      <input type="submit" value="Select a route" />
+    </form>
+      <form action = "http://localhost:5000/uploader" method = "POST" enctype = "multipart/form-data">
+        <label for="new_routing">Upload a routing</label><input type = "file" name = "new_routing"/><input type = "submit"/>
     </form>
 </div>
     

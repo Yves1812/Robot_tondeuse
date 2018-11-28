@@ -3,6 +3,7 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
+import os
 
 UPLOAD_FOLDER = '/path/to/the/uploads'
 
