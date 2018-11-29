@@ -17,6 +17,7 @@
     <p> </p>
 	<button type="button" class="btn btn-primary">Play</button> <button type="button" class="btn btn-primary">Pause</button> <button type="button" class="btn btn-primary">Stop</button>
     <p> </p>
+    <a href="{{ url_for('select_route') }}" class="btn btn-primary">Select a route</a>
     <form action="{{ url_for('select_route') }}">
       <input type="submit" value="Select a route" />
     </form>
