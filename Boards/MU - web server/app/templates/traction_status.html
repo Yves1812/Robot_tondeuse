@@ -11,18 +11,16 @@
         {% endfor %}
      </ul>
     <p> </p>
-    <button>EMERGENCY STOP</button>
+    <button type="button" class="btn btn-primary">EMERGENCY STOP</button>
     <p> </p>    
     <p>Active routing: {% if loaded_route != None %}{{ loaded_route }} {% else %}none{% endif %}</p>
     <p> </p>
 	<button type="button" class="btn btn-primary">Play</button> <button type="button" class="btn btn-primary">Pause</button> <button type="button" class="btn btn-primary">Stop</button>
     <p> </p>
     <a href="{{ url_for('select_route') }}" class="btn btn-primary">Select a route</a>
-    <form action="{{ url_for('select_route') }}">
-      <input type="submit" value="Select a route" />
-    </form>
-      <form action = "http://localhost:5000/uploader" method = "POST" enctype = "multipart/form-data">
-        <label for="new_routing">Upload a routing</label><input type = "file" name = "new_routing"/><input type = "submit"/>
+    <p> </p>
+    <form action = "http://localhost:5000/uploader" method = "POST" enctype = "multipart/form-data">
+        <label for="new_routing">Upload a routing</label><input type = "file" name = "new_routing"/><input class="btn btn-primary" type = "submit"/>
     </form>
 </div>
     
