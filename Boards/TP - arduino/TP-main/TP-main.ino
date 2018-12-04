@@ -25,28 +25,31 @@
 //Physical pins of motors
 #define PinForwardFL 24
 #define PinBackwardFL 25
-#define PinSpeedFL 3
+#define PinSpeedFL 2
 
 #define PinForwardFR 26
 #define PinBackwardFR 27
-#define PinSpeedFR 4
+#define PinSpeedFR 3
 
 #define PinForwardRL 28
 #define PinBackwardRL 29
-#define PinSpeedRL 5
+#define PinSpeedRL 4
 
 #define PinForwardRR 30
 #define PinBackwardRR 31
-#define PinSpeedRR 6
+#define PinSpeedRR 5
 
 // Compass pin
 #define ANGLE_8  1           // Register to read 8 bits angle from compass
+// serial 1 RX = 19
+// serial 1 Tx = 18
 
 // SPI Slave Select pins
 #define SS_DECODER_BOARD 22
-#define SS_HW 53
 
 // I2C address and registers
+// SCL 21
+// SDA 20
 #define SLAVE_ADDRESS 0x16
 #define SEGMENT_REGISTER 10
 #define MOTORS_REGISTER 20
