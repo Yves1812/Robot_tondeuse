@@ -392,6 +392,7 @@ void setup() {
   Wire.onRequest(requestEvent);   // register event on MU bus
   Wire.onReceive(receiveEvent);
   Serial.println("I2C Main Unit bus initiated as a slave");
+  I2Cregister=0;
   
 // SPI bus initiated
   digitalWrite(SS_DECODER_BOARD, HIGH);  // ensure SS for DECODER_BOARD stays high for now
@@ -418,38 +419,57 @@ void receiveEvent(int howMany) {
 
   if (I2Cregister==0 && howMany == 1){
     I2Cregister=Wire.read();
+//    Serial.print("I2Cregister:");
+//    Serial.println(I2Cregister);
   }
   else{
     if (howMany == 10){
       I2Cregister=Wire.read();
+//      Serial.print("I2Cregister:");
+//      Serial.println(I2Cregister);
+
       if (I2Cregister == ROUTING_REGISTER){
         next_move.segment_type = Wire.read();
     
         buff[0]=Wire.read();
         buff[1]=Wire.read();
         next_move.segment_id=word(buff[0],buff[1]);
-    
+//        Serial.print("id:");
+//        Serial.println(next_move.segment_id);
+
         buff[0]=Wire.read();
         buff[1]=Wire.read();
         buff[2]=Wire.read();
         buff[3]=Wire.read();
-        ticks=buff[0];
-        ticks+=buff[1] << 8;
-        ticks+=buff[2] << 16;
-        ticks+=buff[3] << 24;
+//        Serial.print(buff[0]);
+//        Serial.print(buff[1]);
+//        Serial.print(buff[2]);
+//        Serial.print(buff[3]);
+        
+        ticks+=(long)buff[0]<<24;
+        ticks+=(long)buff[1]<<16;
+        ticks+=(long)buff[2]<<8;
+        ticks+=(long)buff[3];
         next_move.target_ticks = ticks;
+//        Serial.print("ticks:");
+//        Serial.println(ticks);
     
         next_move.target_bearing = Wire.read();
         next_move.target_speed = Wire.read();
+//        Serial.print("target_bearing:");
+//        Serial.println(next_move.target_bearing);
+//        Serial.print("target_speed:");
+//        Serial.println(next_move.target_speed);
+        
         next_seg_available=true;
         I2Cregister=0;
       }
       else{
-        Serial.println("Error receiving data");
+        Serial.println("Error receiving data, received 10 bytes but unknown register");
       }
     }
     else{
-      Serial.println("Error receiving data");
+      Serial.println("Error receiving data, received unrecognized number of bytes");
     }
   }
 }
@@ -464,13 +484,21 @@ void requestEvent() {
   // * teta_point float
   // * motor_power x4 - byte x4
   byte buf[14];
+  int i;
   
-  // 16 bytes to be sent
+  // 14 bytes to be sent
   if (I2Cregister==SEGMENT_REGISTER){
-    // 16 bytes to be sent
-    memcpy(buf, (int *) current_move.segment_id, sizeof(current_move.segment_id)); // 2 bytes
-    memcpy(buf+2, (long *) segment.ticks_cum, sizeof(segment.ticks_cum)); // 4 bytes
-    memcpy(buf+4, (long *) segment.millis_cum, sizeof(segment.millis_cum)); // 4 bytes
+    // 14 bytes to be sent
+    buf[1]=current_move.segment_id & 0xFF;// //sizeof(current_move.segment_id)); // 2 bytes
+    buf[0]=(current_move.segment_id >> 8 )& 0xFF;
+    buf[5]=segment.ticks_cum & 0xFF; //sizeof(segment.ticks_cum)); // 4 bytes
+    buf[4]=(segment.ticks_cum >>8 ) & 0xFF;
+    buf[3]=(segment.ticks_cum >>16 ) & 0xFF;
+    buf[2]=(segment.ticks_cum >>24 ) & 0xFF;
+    buf[9]=segment.millis_cum & 0xFF; //sizeof(segment.ticks_cum)); // 4 bytes
+    buf[8]=(segment.millis_cum >>8 ) & 0xFF;
+    buf[7]=(segment.millis_cum >>16 ) & 0xFF;
+    buf[6]=(segment.millis_cum >>24 ) & 0xFF;
     buf[10]=segment.average_bearing; // 1 byte
     buf[11]=segment.current_bearing; // 1 byte
     buf[12]=segment.speed_step; // 1 byte
@@ -482,6 +510,11 @@ void requestEvent() {
     {
       buf[13]=false; //1 byte
     }
+//    while (i<14)
+//    {
+//      Serial.println(buf[i]);
+//      i++;
+//    }
     Wire.write(buf,14);
     I2Cregister=0;
   }
@@ -528,10 +561,10 @@ int i=0;
 void loop(){
    if (millis()-last_moment>100){ // for testing purpose
      last_moment=millis();
-     test_I2C_wo_segment_receiving();
+     test_I2C_w_segment_receiving();
 //     test_I2C_w_segment_receiving();
 //      test_compass();
-     Serial.println(last_moment);
+//    Serial.println(last_moment);
 //     test_decoders();
    }
 }
@@ -568,12 +601,12 @@ void test_compass(){
 }
 
 void test_I2C_wo_segment_receiving(){
-  current_move.segment_id=254*253; // 2 bytes
-  segment.ticks_cum= 254*254*254*253; // 4 bytes
-  segment.millis_cum= 254*254*254*252; // 4 bytes
-  segment.average_bearing=254; // 1 byte
-  segment.current_bearing=253; // 1 byte
-  segment.speed_step=252; // 1 byte
+  current_move.segment_id=1; // 2 bytes
+  segment.ticks_cum= 2; // 4 bytes
+  segment.millis_cum= 3; // 4 bytes
+  segment.average_bearing=4; // 1 byte
+  segment.current_bearing=5; // 1 byte
+  segment.speed_step=6; // 1 byte
   seg_completed=false;
   rover.FL_motor.power=128; //1 byte
   rover.FR_motor.power=129; //1 byte
@@ -582,17 +615,17 @@ void test_I2C_wo_segment_receiving(){
 }
 
 void test_I2C_w_segment_receiving(){
-  current_move.segment_id=254*253; // 2 bytes
-  segment.ticks_cum= 254*254*254*253; // 4 bytes
-  segment.millis_cum= 254*254*254*252; // 4 bytes
-  segment.average_bearing=254; // 1 byte
-  segment.current_bearing=253; // 1 byte
-  segment.speed_step=252; // 1 byte
+  current_move.segment_id=1000; // 2 bytes
+  segment.ticks_cum= 2000; // 4 bytes
+  segment.millis_cum= 3000; // 4 bytes
+  segment.average_bearing=100; // 1 byte
+  segment.current_bearing=200; // 1 byte
+  segment.speed_step=200; // 1 byte
   seg_completed=true;
   next_seg_available=false;
-  rover.FL_motor.power=128; //1 byte
-  rover.FR_motor.power=129; //1 byte
-  rover.RL_motor.power=130; //1 byte
-  rover.RR_motor.power=131; //1 byte
+  rover.FL_motor.power=7; //1 byte
+  rover.FR_motor.power=8; //1 byte
+  rover.RL_motor.power=9; //1 byte
+  rover.RR_motor.power=10; //1 byte
 }
 
