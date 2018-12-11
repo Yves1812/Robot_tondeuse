@@ -7,6 +7,7 @@ import datetime
 from math import atan2, cos, sin
 import json
 from pprint import pprint
+import os.path
 
 #### Orthonormal reference ###############
 # Y axis pointing towards true north     #
@@ -25,7 +26,7 @@ from pprint import pprint
 roverdb='/home/pi/Documents/GitHub/Robot_tondeuse/Boards/MU - web server/app.db/'
 routing_path='/home/pi/Documents/Github/Robot_tondeuse/Data/'
 
-routing_file='test_routing'
+active_routing='active_routing'
 
 ##### I2C adresses #####
 pi_I2C_bus=1
@@ -314,12 +315,17 @@ class routing(object):
         pass
         
     def loadRouting(self):
-        with open(routing_path+self.name+".json", 'r') as routing_file:
-          routing_data=json.load(routing_file)
-        self.name=routing_data["name"]
-        self.routing_type=routing_data["routing_type"]
-        for item in routing_data["perimeter"]:
-           self.perimeter.append(waypoint(item[0],item[1]))
+        try:
+            with open(routing_path+self.name+".json", 'r') as routing_file:
+              routing_data=json.load(routing_file)
+            self.name=routing_data["name"]
+            self.routing_type=routing_data["routing_type"]
+            for item in routing_data["perimeter"]:
+               self.perimeter.append(waypoint(item[0],item[1]))
+            return 0
+        except OSError as e:
+            print("File not found.")
+            return -1
 
 class waypoint(object):
     def __init__(self,x,y):
@@ -375,37 +381,51 @@ class segment_status(object):
         self.speed_step=None #speed_step is the speed mesured between the last two position measures made by TP board (@10Hz)
 
 if __name__ == "__main__":
-
     print("Welcome to my rover, Yves !")
-    myrover=Rover()
-    myrover.routing.name=routing_file
-    myrover.routing.loadRouting()
-    myrover.routing.buildSegments()
-    for item in myrover.routing.segments:
-        item.print()
-    myrover.routing.active_segment=0
-    print("Active_segment #:", myrover.routing.active_segment)
-#    myrover.move_rover()
-## delay until Mega is up
-    time.sleep(5)
-    for i in range(3):
-        time.sleep(1)
-        myrover.get_active_segment_status() # test get segment status and push segment if requested
-        myrover.get_rover_power()
-                                     
-    ##myrover.query_db_status()
-    ##print('x=',myrover.x)
-    ##print('y=',myrover.y)
-    ##
-    ##print(datetime.datetime.now())
-    ##for i in range(10000):
-    ##    myrover.get_rover_status(0)
-    ##print(datetime.datetime.now())
-    ##    print("Bearing 8: ",myrover.bearing8*360/255)
-    ##    print("Bearing 16: ", myrover.bearing16/10)
-    ##    print("pitch: ",myrover.pitch)
-    ##    print("Roll: ",myrover.roll)
-    ##    print("")
-    #    time.sleep(10)
+## Initialization ##
+    initialization_completed=True
+    try:
+        myrover=Rover()
+        myrover.routing.name=routing_file
+        if myrover.routing.loadRouting() == 0 :
+            myrover.routing.buildSegments()
+            myrover.routing.active_segment=0
+        # Do some more checks
+        # e.g. detect and report I2C devices
+
+        try:
+            while initialization_completed :
+                if myrover.routing.loadRouting() == 0 :
+                    myrover.routing.buildSegments()
+                    myrover.routing.active_segment=0
+                #    myrover.move_rover()
+                ## delay until Mega is up
+                    time.sleep(5)
+                    for i in range(3):
+                        time.sleep(1)
+                        myrover.get_active_segment_status() # test get segment status and push segment if requested
+                        myrover.get_rover_power()
+                                                 
+    ##            for item in myrover.routing.segments:
+    ##                item.print()
+
+                ##myrover.query_db_status()
+                ##print('x=',myrover.x)
+                ##print('y=',myrover.y)
+                ##
+                ##print(datetime.datetime.now())
+                ##for i in range(10000):
+                ##    myrover.get_rover_status(0)
+                ##print(datetime.datetime.now())
+                ##    print("Bearing 8: ",myrover.bearing8*360/255)
+                ##    print("Bearing 16: ", myrover.bearing16/10)
+                ##    print("pitch: ",myrover.pitch)
+                ##    print("Roll: ",myrover.roll)
+                ##    print("")
+                #    time.sleep(10)
 
 
+        except KeyboardInterrupt:
+            print('interrupted!')
+    except:
+        print("Unknown error")
