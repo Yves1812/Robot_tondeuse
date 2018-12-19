@@ -21,10 +21,13 @@ import os.path
 ##### Windows #####
 ##roverdb='C:\\Users\\Yves1812\\Documents\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
 ##routing_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\'
+##routing_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\Command\\'
 
 ##### Raspberry Pi #####
 roverdb='/home/pi/Documents/GitHub/Robot_tondeuse/Boards/MU - web server/app.db/'
 routing_path='/home/pi/Documents/Github/Robot_tondeuse/Data/'
+command_path='/home/pi/Documents/Github/Robot_tondeuse/Data/Command/'
+
 
 active_routing='active_routing'
 
@@ -229,8 +232,16 @@ class Rover(object):
         self.routing.active_segment=segment
         self.routing.next_segment_needed=False
 
-    def set_routing(self):
-        self.routing.loadRouting()
+    def set_routing(self, new_routing):
+        if (self.routing.loadRouting(new_routing)==0):
+            self.routing.buildSegments()
+            self.routing.active_segment=0
+            self.routing.routing_name=new_routing
+            return 0
+        else:
+            print("Failed to set routing")
+            return -1
+
 
     def move_rover(self):
         if (self.routing.active_segment == None):
@@ -244,8 +255,9 @@ class Rover(object):
         pass
         
 class routing(object):
-    def __init__(self, name="vide", routing_type=1):
-        self.name=name
+    def __init__(self, name=None, routing_type=1):
+        self.routing_name=name
+        self.detected_routing=None
         self.routing_type=routing_type #1 for liaison, 2 for mow
         self.perimeter=[] #[waypoints] in case of move perimeter = 2 points (origin and destination)
         self.segments=[]
@@ -314,15 +326,31 @@ class routing(object):
         # Returns distance to other border @90 degree vs current segment
         pass
         
-    def loadRouting(self):
+    def detectRouting(self):
         try:
-            with open(routing_path+self.name+".json", 'r') as routing_file:
+            with os.scandir(command_path) as it:
+                for entry in it:
+                    if entry.name.startswith('routing_') and entry.is_file():
+                        self.detected_routing=entry.name[8:-6] #name format should be routing_###.route
+        except OSError as e:
+            print("Routing path not found")
+            return -1
+
+
+
+    def loadRouting(self, new_routing):
+        try:
+            with open(routing_path+new_routing+".json", 'r') as routing_file:
               routing_data=json.load(routing_file)
-            self.name=routing_data["name"]
-            self.routing_type=routing_data["routing_type"]
-            for item in routing_data["perimeter"]:
-               self.perimeter.append(waypoint(item[0],item[1]))
-            return 0
+            if (new_routing==routing_data["name"]):
+                self.routing_name=routing_data["name"]
+                self.routing_type=routing_data["routing_type"]
+                for item in routing_data["perimeter"]:
+                   self.perimeter.append(waypoint(item[0],item[1]))
+                return 0
+            else :
+                print("Unconsistent routing name")
+                return -1
         except OSError as e:
             print("File not found.")
             return -1
@@ -380,19 +408,32 @@ class segment_status(object):
         #self.teta_point=None not implemented
         self.speed_step=None #speed_step is the speed mesured between the last two position measures made by TP board (@10Hz)
 
+class Commands(object):
+    def __init__(self):
+        self.commands=deque() #append, popleft
+    def getCommands(self):
+        with os.scandir(command_path) as it:
+            for entry in it:
+                if entry.name.startswith('cmd_') and entry.is_file():
+                    self.commands.append(entry.name)
+        
+
 if __name__ == "__main__":
     print("Welcome to my rover, Yves !")
 ## Initialization ##
     initialization_completed=True
     try:
         myrover=Rover()
-        myrover.routing.name=routing_file
-        if myrover.routing.loadRouting() == 0 :
-            myrover.routing.buildSegments()
-            myrover.routing.active_segment=0
+        while myrover.routing.detected_routing=None :
+            myrover.routing.detectRouting()
+            time.sleep(0.1)
+        if (myrover.setrouting(myrover.routing.detected_routing)!=0):
+            initialization_completed=False
         # Do some more checks
         # e.g. detect and report I2C devices
 
+
+## Forever loop
         try:
             while initialization_completed :
                 if myrover.routing.loadRouting() == 0 :
@@ -426,6 +467,6 @@ if __name__ == "__main__":
 
 
         except KeyboardInterrupt:
-            print('interrupted!')
+            print('User interrupted!')
     except:
         print("Unknown error")
