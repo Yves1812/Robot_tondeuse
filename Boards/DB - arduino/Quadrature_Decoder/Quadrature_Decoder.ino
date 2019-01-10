@@ -2,7 +2,7 @@
 
 // modified to use SPI bus instead of I2C - could be accelerated if needed (optimize memcpy)
 
-// Mega external interrupt pins 2, 3, 18, 19, 20, 21
+// Mega external interrupt pins 2, 3, 18, 19, 20, 21 beware 20 & 21 have pull-ups to 5V
 // 2 = FLPulse PORTE4
 // 22 = FLDir PORTA0
 // 3 = FRPulse PORTE5

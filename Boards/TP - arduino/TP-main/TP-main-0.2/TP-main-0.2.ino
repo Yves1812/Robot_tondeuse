@@ -23,20 +23,21 @@
 
 
 //Physical pins of motors
+// Need to check after connection that pins are allocated to relevant motor and rotation directions are consistent
 #define PinForwardFL 24
-#define PinBackwardFL 25
+#define PinBackwardFL 28
 #define PinSpeedFL 2
 
-#define PinForwardFR 26
-#define PinBackwardFR 27
+#define PinForwardFR 30
+#define PinBackwardFR 32
 #define PinSpeedFR 3
 
-#define PinForwardRL 28
-#define PinBackwardRL 29
+#define PinForwardRL 40
+#define PinBackwardRL 38
 #define PinSpeedRL 4
 
-#define PinForwardRR 30
-#define PinBackwardRR 31
+#define PinForwardRR 36
+#define PinBackwardRR 34
 #define PinSpeedRR 5
 
 // Compass pin
@@ -218,39 +219,40 @@ void SegmentStatus::deliverStraightSegment() {
   float LR_PWM_factor, FR_Left_PWM_factor, FR_Right_PWM_factor, scaling_factor;
   int target_speed;
 
-  if (segment.gap_cum>=2 || segment.gap_cum<=-2){
-    LR_PWM_factor=1+segment.gap_cum/segment.ticks_cum;
+  if (segment.gap_cum>=2 || segment.gap_cum<=-2){ // There is a gap between left slowest wheel and right slowest wheel
+    LR_PWM_factor=1+segment.gap_cum/segment.ticks_cum; // Left-Right factor to be adjusted to correct the gap
   }
-  if (segment.FL_ticks_step-segment.RL_ticks_step!=0){
-    FR_Left_PWM_factor=1+(segment.FL_ticks_step-segment.RL_ticks_step)/min(segment.FL_ticks_step, segment.RL_ticks_step); // Slow right side
+  if (segment.FL_ticks_step-segment.RL_ticks_step!=0){ // There is a gap of speed between one wheel and the other on the Left side
+    FR_Left_PWM_factor=1+(segment.FL_ticks_step-segment.RL_ticks_step)/min(segment.FL_ticks_step, segment.RL_ticks_step); // Adjust Front Rear balance on the Left side
   }
-  if (segment.FR_ticks_step-segment.RR_ticks_step!=0){
-    FR_Right_PWM_factor=1+(segment.FR_ticks_step-segment.RR_ticks_step)/min(segment.FR_ticks_step, segment.RR_ticks_step); // Slow right side
+  if (segment.FR_ticks_step-segment.RR_ticks_step!=0){ // There is a gap of speed between one wheel and the other on the Right side 
+    FR_Right_PWM_factor=1+(segment.FR_ticks_step-segment.RR_ticks_step)/min(segment.FR_ticks_step, segment.RR_ticks_step); // // Adjust Front Rear balance on the Right side
   }
-  rover.FL_motor.myspeed*=LR_PWM_factor*FR_Left_PWM_factor;
+
+  // Apply adjustment factors Rear right arbitrary used as the reference - alternative is to use the sloest wheel as a reference (to be explored in Vn+1)
+  // Adjust left side for difference with right side
+  rover.FL_motor.myspeed*=LR_PWM_factor;
+  rover.RL_motor.myspeed*=LR_PWM_factor;
+  // adjust each side for Front Rear Balance
+  rover.FL_motor.myspeed*=FR_Left_PWM_factor;
   rover.FR_motor.myspeed*=FR_Right_PWM_factor;
 
+  // Scale overall speed to reconverge towards desired target.speed
   if (current_move.target_ticks-segment.ticks_cum<100){
-    target_speed=current_move.target_speed/4;
+    target_speed=current_move.target_speed/4; // If aproaching end of segment, speed is divided by 4 vs target speed
   }
   else
   {
     target_speed=current_move.target_speed;
   }
-
-  scaling_factor=max(max(rover.FL_motor.myspeed, rover.FL_motor.myspeed), max(rover.FL_motor.myspeed,rover.FL_motor.myspeed))/target_speed;
-  if (scaling_factor>0.8){
-    if (rover.FL_motor.myspeed!=0){rover.FL_motor.myspeed*=1/scaling_factor;} else {rover.FL_motor.myspeed=1;}        
-    if (rover.FR_motor.myspeed!=0){rover.FR_motor.myspeed*=1/scaling_factor;} else {rover.FR_motor.myspeed=1;}
-    if (rover.RL_motor.myspeed!=0){rover.RL_motor.myspeed*=1/scaling_factor;} else {rover.RL_motor.myspeed=1;}        
-    if (rover.RR_motor.myspeed!=0){rover.RR_motor.myspeed*=1/scaling_factor;} else {rover.RR_motor.myspeed=1;}        
-  }
-  else {
-    if (rover.FL_motor.myspeed!=0){rover.FL_motor.myspeed*=1.2;} else {rover.FL_motor.myspeed=1;}        
-    if (rover.FR_motor.myspeed!=0){rover.FR_motor.myspeed*=1.2;} else {rover.FR_motor.myspeed=1;}        
-    if (rover.RL_motor.myspeed!=0){rover.RL_motor.myspeed*=1.2;} else {rover.RL_motor.myspeed=1;}        
-    if (rover.RR_motor.myspeed!=0){rover.RR_motor.myspeed*=1.2;} else {rover.RR_motor.myspeed=1;}        
-  }
+  scaling_factor=target_speed/(max(max(rover.FL_motor.myspeed, rover.FR_motor.myspeed), max(rover.RL_motor.myspeed,rover.RR_motor.myspeed)));
+  // Cap speed variation to +/- 20%
+  if (scaling_factor <0.8) {scaling_factor=0.8;}
+  if (scaling_factor > 1.2) {scaling_factor = 1.2;}
+  if (rover.FL_motor.myspeed!=0){rover.FL_motor.myspeed*=scaling_factor;} else {rover.FL_motor.myspeed=0.01*target_speed;} // if a speed had gone to zero, get it back non null unless target speed is zero!        
+  if (rover.FR_motor.myspeed!=0){rover.FR_motor.myspeed*=scaling_factor;} else {rover.FR_motor.myspeed=0.01*target_speed;}
+  if (rover.RL_motor.myspeed!=0){rover.RL_motor.myspeed*=scaling_factor;} else {rover.RL_motor.myspeed=0.01*target_speed;}        
+  if (rover.RR_motor.myspeed!=0){rover.RR_motor.myspeed*=scaling_factor;} else {rover.RR_motor.myspeed=0.01*target_speed;}        
 }
 
 void SegmentStatus::deliverRotationSegment() {
@@ -370,10 +372,10 @@ void Rover::begin(void){
 }
 
 void Rover::move_rover(void){
-  FL_motor.setSpeed();
-  FR_motor.setSpeed();
-  RL_motor.setSpeed();
-  RR_motor.setSpeed();
+    FL_motor.setSpeed();
+    FR_motor.setSpeed();
+    RL_motor.setSpeed();
+    RR_motor.setSpeed();
 }
 
 void setup() {
@@ -530,28 +532,64 @@ void requestEvent() {
 }
 
 void driveRover(){
-  segment.updateStatus();
-  if (!seg_completed){
-    if (current_move.segment_type == 1){
-      segment.deliverStraightSegment();
+  if (segment.updateStatus()) { // Sensors could be read ok?
+    // if new seg available, check segment Id to see if update or new and process accordingly, ie start new segment (n+1) or calcultae differential segment_target
+    //  to be checked
+    if (next_seg_available){ // MU sent a new segment
+      if (current_move.segment_id == next_move.segment_id){ // received segent has same id as current => this is an update => appmy immediatelly
+        current_move.target_ticks=next_move.target_ticks-segment.ticks_cum;
+        if (current_move.target_ticks<0) {current_move.target_ticks=0;}
+        current_move.target_bearing=next_move.target_bearing;
+        current_move.target_speed=next_move.target_speed;
+        next_seg_available=false;
+        seg_completed=false;
+        segment.begin();
+      }
+      else {
+        if (seg_completed){ // received segment is next segment and current one is completed - process new segment
+          current_move.segment_type=next_move.segment_type; //0 in case rotation, 1 in case straight
+          current_move.segment_id=next_move.segment_id;
+          current_move.target_ticks=next_move.target_ticks;
+          current_move.target_bearing=next_move.target_bearing;
+          current_move.target_speed=next_move.target_speed;
+          next_seg_available=false;
+          seg_completed=false;
+          segment.begin();
+        }
+        else { // recived new segment is the next one but current one is not completed => continue current
+          if (current_move.segment_type == 1){
+            segment.deliverStraightSegment();
+          }
+          if (current_move.segment_type == 0){
+            segment.deliverRotationSegment();
+          }
+          rover.move_rover();
+        }
+      }
     }
-    if (current_move.segment_type == 0){
-      segment.deliverRotationSegment();
+    else { // No new segmet is availabe
+      if (!seg_completed){ // current segment is not completed => continue
+        if (current_move.segment_type == 1){
+          segment.deliverStraightSegment();
+        }
+        if (current_move.segment_type == 0){
+          segment.deliverRotationSegment();
+        }
+        rover.move_rover();
+      }
+      else { // No new segmment is available but current one is completed => stop rover
+        rover.FL_motor.stop();
+        rover.FR_motor.stop();
+        rover.RL_motor.stop();
+        rover.RR_motor.stop();
+      }
     }
-    rover.move_rover();
   }
-  else
-  {
-    if (next_seg_available){
-      current_move.segment_type=next_move.segment_type; //0 in case rotation, 1 in case straight
-      current_move.segment_id=next_move.segment_id;
-      current_move.target_ticks=next_move.target_ticks;
-      current_move.target_bearing=next_move.target_bearing;
-      current_move.target_speed=next_move.target_speed;
-      next_seg_available=false;
-      seg_completed=false;
-      segment.begin();
-    }
+  else { // Sensors could not be read properly => stop rover as a safeguard measure
+    rover.FL_motor.stop();
+    rover.FR_motor.stop();
+    rover.RL_motor.stop();
+    rover.RR_motor.stop();       
   }
 }
 
