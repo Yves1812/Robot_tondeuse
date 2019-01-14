@@ -20,10 +20,14 @@ try:
 
 except ImportError:
     print("Could not import smbus, proceeding with simulated data") #Means in windows dev environment
+    ##### Use Windows path YB #####
+##    roverdb='C:\\Users\\Yves1812\\Documents\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
+##    routing_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\'
+##    command_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\Commands\\'
     ##### Use Windows path #####
-    roverdb='C:\\Users\\Yves1812\\Documents\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
-    routing_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\'
-    command_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\Commands\\'
+    roverdb='C:\\user\\U417266\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
+    routing_path='C:\\user\\U417266\\GitHub\\Robot_tondeuse\\Data\\'
+    command_path='C:\\user\\U417266\\Github\\Robot_tondeuse\\Data\\Commands\\'
 
 
 #### Orthonormal reference #########################################################
@@ -177,9 +181,9 @@ class Rover(object):
             except:
                 print("Using dummy decoder data for segment status")
                 decoder_data=decoder_data_next_needed
-            print('Segment status from TP')
-            print("Set of bytes received fro TP: ",decoder_data)
-            print("Decoding...")
+##            print('Segment status from TP')
+##            print("Set of bytes received fro TP: ",decoder_data)
+##            print("Decoding...")
             self.routing.active_segment_status.segment_id=decoder_data[0]*256+decoder_data[1]
             self.routing.active_segment_status.ticks_cum=(((decoder_data[2]*256+decoder_data[3])*256+decoder_data[4])*256+decoder_data[5])
             self.routing.active_segment_status.millis_cum=(((decoder_data[6]*256+decoder_data[7])*256+decoder_data[8])*256+decoder_data[9])
@@ -196,14 +200,6 @@ class Rover(object):
             print('speed_step: ',self.routing.active_segment_status.speed_step)
             print('segment_needed: ',self.routing.next_segment_needed)
             print()
-
-            if self.routing.next_segment_needed :
-                self.update_rover_position()
-                if (self.routing.active_segment+1 < len(self.routing.segments)):
-                    self.push_segment(self.routing.active_segment+1)
-                else:
-                    pass
-                    # last segment has been reached => stop and/or ask for a new routing
 
         else :
             print("no active segment to read")
@@ -231,10 +227,10 @@ class Rover(object):
         self.traction_power[1]=decoder_data[1]
         self.traction_power[2]=decoder_data[2]
         self.traction_power[3]=decoder_data[3]
-# not implemente  self.ice_status=decoder_data[2]
+# not implemented  self.ice_status=decoder_data[2]
 
     def push_segment(self, segment):
-        print("Pushing segment# :", segment)
+#        print("Pushing segment# :", segment)
         self.routing.segments[segment].print()
 
         data=[]
@@ -247,10 +243,10 @@ class Rover(object):
         data.append((self.routing.segments[segment].target_ticks & 0x000000FF)) 
         data.append(self.routing.segments[segment].target_bearing)
         data.append(self.routing.segments[segment].target_speed*self.moving)
-        i=0
-        for item in data:
-            print("Pushed byte:",i," ",item)
-            i+=1
+##        i=0
+##        for item in data:
+##            print("Pushed byte:",i," ",item)
+##            i+=1
         # need to add error management
         try:
             self.TP_board.writeList(data,routing_register)
@@ -258,7 +254,6 @@ class Rover(object):
             print("Failed to push new segment to TP board")
             print("Continuing in test mode")
         self.routing.active_segment=segment
-        self.routing.next_segment_needed=False
 
     def detectRouting(self):
         try:
@@ -271,6 +266,7 @@ class Rover(object):
             return -1
 
     def set_routing(self, new_routing):
+        # Set routing set active routing, need to move_rover to get robot moving
         if (self.routing.loadRouting(new_routing)==0):
             print("New routing loaded")
             self.routing.buildSegments()
@@ -282,7 +278,6 @@ class Rover(object):
         else:
             print("Failed to set routing")
             return -1
-
 
     def move_rover(self):
         if (self.routing.active_segment == None):
@@ -300,16 +295,34 @@ class Rover(object):
             for entry in it:
                 if entry.name.startswith('cmd_') and entry.is_file():
                     self.commands.append(entry.name[4:-4]) #command format == cmd_play.cmd
+                    os.remove(command_path+entry.name)
 
     def processCommands(self):
-        while self.commands != None :
-            command=self.command.popleft()
+        current=self.moving
+        while self.commands :
+            command=self.commands.popleft()
+            print(command)
             if command == "play":
                 self.moving=1
             elif command == "pause" :
                 self.moving=0
             elif command == "changeroute" :
-                pass
+                try :
+                    self.detectRouting()
+                    print("New routing found: ", self.detected_routing)
+                    print("Loading ...")
+                except:
+                    print("No new routing found")
+                    # Try to load initial routing
+                if (self.detected_routing!=None) :
+                    loading=self.set_routing(self.detected_routing)
+                    if (loading==0):
+                        print("New routing loaded.")
+                    else : 
+                        print("Error loading new routing.")
+                self.detected_routing == None
+        if (current!=self.moving):
+            self.move_rover()    
 
     def initialize(self):
         # Do some checks and set check_succeeded accordingly
@@ -331,17 +344,22 @@ class Rover(object):
             print("Initialization completed and initial routing loaded")
 
     def loop(self):
-        # Search new routing
-        self.detectRouting()
-        if self.detected_routing !=self.routing.routing_name :
-            print("New routing detected.")
-            # Try to load new routing
-            if (self.set_routing(self.detected_routing)==0):
-                print("New routing loaded.")
-        else:
+        #Search for pending commands and process them
+        self.getCommands()
+        if (self.commands) :
+            self.processCommands()
+        else :
             self.get_active_segment_status()
+            if self.routing.next_segment_needed :
+                self.update_rover_position()
+                self.routing.next_segment_needed=False
+                if (self.routing.active_segment+1 < len(self.routing.segments)):
+                    print("Pushing next segment to TP.", self.routing.active_segment+1)
+                    self.push_segment(self.routing.active_segment+1)
+                else:
+                    pass
+                    # last segment has been reached => stop and/or ask for a new routing
         
-    
 class routing(object):
     def __init__(self, name=None, routing_type=1):
         self.routing_name=name
@@ -357,6 +375,7 @@ class routing(object):
         if (self.routing_type==1) :
             # Calculate straight line liaison, each line is composed of a rotation segment to point in the right direction and a straight segment to move
             waypoint0=self.perimeter[0]
+## waypoint0 shall not be perimeter[0] but actual position of the rover
             i=0
             for waypoint in self.perimeter[1:]:
                 #need to confirm  atan angle in practice to be sure
@@ -494,8 +513,8 @@ if __name__ == "__main__":
         while not myrover.initialization_completed :
             myrover.initialize()
             time.sleep(1)
-        for item in myrover.routing.segments:
-            item.print()
+##        for item in myrover.routing.segments:
+##            item.print()
 
                
 ## Forever loop
