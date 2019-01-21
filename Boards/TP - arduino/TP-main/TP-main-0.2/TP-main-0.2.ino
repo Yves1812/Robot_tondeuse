@@ -41,7 +41,7 @@
 #define PinSpeedRR 5
 
 // Compass pin
-#define ANGLE_8  1           // Register to read 8 bits angle from compass
+#define ANGLE_8  18           // Register to read 8 bits angle from compass
 // serial 1 RX = 19
 // serial 1 Tx = 18
 
@@ -382,7 +382,7 @@ void setup() {
 // Set Serial communication for debugging purpose
   delay(100);
   Serial.begin(9600);  
-  Serial1.begin(9600);
+  Serial1.begin(9600, SERIAL_8N2);
   Serial.println("Booting up ...");
   Serial.println("Serial bus initiated");
 
@@ -597,11 +597,12 @@ int i=0;
 
 // Loop routine
 void loop(){
-   if (millis()-last_moment>100){ // for testing purpose
+   if (millis()-last_moment>500){ // for testing purpose
      last_moment=millis();
-     test_I2C_w_segment_receiving();
 //     test_I2C_w_segment_receiving();
-//      test_compass();
+//     test_I2C_w_segment_receiving();
+      Serial.println("Trying to read compass...");
+      test_compass();
 //    Serial.println(last_moment);
 //     test_decoders();
    }

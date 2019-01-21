@@ -21,13 +21,13 @@ try:
 except ImportError:
     print("Could not import smbus, proceeding with simulated data") #Means in windows dev environment
     ##### Use Windows path YB #####
-##    roverdb='C:\\Users\\Yves1812\\Documents\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
-##    routing_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\'
-##    command_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\Commands\\'
+    roverdb='C:\\Users\\Yves1812\\Documents\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
+    routing_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\'
+    command_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\Commands\\'
     ##### Use Windows path #####
-    roverdb='C:\\user\\U417266\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
-    routing_path='C:\\user\\U417266\\GitHub\\Robot_tondeuse\\Data\\'
-    command_path='C:\\user\\U417266\\Github\\Robot_tondeuse\\Data\\Commands\\'
+##    roverdb='C:\\user\\U417266\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
+##    routing_path='C:\\user\\U417266\\GitHub\\Robot_tondeuse\\Data\\'
+##    command_path='C:\\user\\U417266\\Github\\Robot_tondeuse\\Data\\Commands\\'
 
 
 #### Orthonormal reference #########################################################
