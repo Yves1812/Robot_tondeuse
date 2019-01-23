@@ -37,6 +37,13 @@ except ImportError:
 # 0,0 at robot charging station                                                    #
 ####################################################################################
 
+#### Segment data          #########################################################
+# speed in ticks / seconds in [-350;350]                                           #
+# ticks in ticks                                                                   #
+# bearing as a byte [0;255]                                                        #
+#                                                                                  #
+####################################################################################
+
 
 active_routing='active_routing'
 
@@ -188,9 +195,9 @@ class Rover(object):
             self.routing.active_segment_status.segment_id=decoder_data[0]*256+decoder_data[1]
             self.routing.active_segment_status.ticks_cum=(((decoder_data[2]*256+decoder_data[3])*256+decoder_data[4])*256+decoder_data[5])
             self.routing.active_segment_status.millis_cum=(((decoder_data[6]*256+decoder_data[7])*256+decoder_data[8])*256+decoder_data[9])
-            self.routing.active_segment_status.average_bearing=decoder_data[10]
+            self.routing.active_segment_status.average_bearing8=decoder_data[10]
             self.routing.active_segment_status.current_bearing=decoder_data[11]
-            self.routing.active_segment_status.speed_step=decoder_data[12]
+            self.routing.active_segment_status.speed_step=(decoder_data[12]-127)*350/255
             #self.routing.active_segment_status.teta_point=decoder_data[13]
             self.routing.next_segment_needed=decoder_data[13]
             self._logger.debug("Receied segment status "+'id: '+str(self.routing.active_segment_status.segment_id)+
@@ -243,8 +250,8 @@ class Rover(object):
         data.append((self.routing.segments[segment].target_ticks & 0x00FF0000) >> 16) 
         data.append((self.routing.segments[segment].target_ticks & 0x0000FF00) >> 8) 
         data.append((self.routing.segments[segment].target_ticks & 0x000000FF)) 
-        data.append(self.routing.segments[segment].target_bearing)
-        data.append(self.routing.segments[segment].target_speed*self.moving)
+        data.append(self.routing.segments[segment].target_bearing8)
+        data.append((self.routing.segments[segment].target_speed*self.moving+350)/2/350*255) # shift from [-350;350] to [0;255]
         new_seg_str=""
         for item in data:
             new_seg_str+=str(item)+":"
@@ -478,11 +485,11 @@ class map(object):
 
 
 class segment(object):
-    def __init__(self,segment_type=1,segment_id=0,target_ticks=None, target_bearing=None, target_speed=250):
+    def __init__(self,segment_type=1,segment_id=0,target_ticks=None, target_bearing8=None, target_speed=250):
         self.segment_type=segment_type #0 in case rotation, 1 in case straight
         self.segment_id=segment_id
         self.target_ticks=target_ticks
-        self.target_bearing=target_bearing
+        self.target_bearing8=target_bearing8
         self.target_speed=target_speed
     def print(self):
         print("Segment Type: ",self.segment_type) #0 in case rotation, 1 in case straight

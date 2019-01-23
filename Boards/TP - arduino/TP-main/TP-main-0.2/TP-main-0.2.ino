@@ -4,7 +4,7 @@
 // nominal 1 tick every 3ms
 // distance 1,5mm / tick
 // nominal 350 ticks/s or 52cm/s
-// nominal rotation speed 62°/s or 4.39 bits/s (assuming radius of wheel to rotation center = 0,5m) 
+// nominal rotation speed 49°/s or 35 bits/s or 0,035 bit/millis (assuming radius of wheel to rotation center = 0,6m) 
 
 // to do
 /// * manage emergency stops on rotation segments
@@ -18,7 +18,7 @@
 // * millis_cum -long
 // * average_bearing - byte
 // * current_bearing - byte
-// * speed_step - byte, manipulaed as int in the rest of the program
+// * speed_step - byte in SPI [0-255] = [-350,350] as int (ticks/s) in the rest of the program
 // * teta_point - byte
 // * motor_power x4 - byte x4
 // check calculation method between floats and ints to avoid stupid roundings
@@ -53,6 +53,10 @@
 // SPI Slave Select pins
 #define SS_DECODER_BOARD 22
 
+// Constant
+#define MAX_SPEED 350 // ticks per second
+#define MAX_ROTATION 35 // bit per second
+
 // I2C address and registers
 // SCL 21
 // SDA 20
@@ -67,7 +71,7 @@ struct segmentOrder{
   unsigned int segment_id;
   long target_ticks;
   byte target_bearing;
-  int target_speed; // Can vary between +255 and -255 as SPI sends 1 byte for speed, need to adjust in reception and send processes
+  int target_speed; // Can vary between +350 and -350 converted from 1 byte SPI
 };
 
 class Motor{
@@ -197,10 +201,9 @@ boolean SegmentStatus::updateStatus(){
     if (current_move.segment_type==1){ // this is a straight segment
       ticks_step=min(min(FL_ticks_step, RL_ticks_step),min(FR_ticks_step, RR_ticks_step));
       ticks_cum+=ticks_step;
-      speed_step=ticks_step/millis_step;
-      speed_cum=ticks_cum/millis_cum;
-// ???? need to check this, not clear
-      average_bearing=((current_bearing+last_bearing)*ticks_step/2+(ticks_cum-ticks_step)*average_bearing)/ticks_cum; //shall be in an update status method of segment to for better sync of bearing anf ticks measurment
+      speed_step=ticks_step*1000/millis_step;
+      speed_cum=ticks_cum*1000/millis_cum;
+      average_bearing=((current_bearing+last_bearing)*ticks_step/2+(ticks_cum-ticks_step)*average_bearing)/ticks_cum; //average bearing since start of segment
       gap_cum+=min(FL_ticks_step, RL_ticks_step)-min(FR_ticks_step, RR_ticks_step);
     }
     if (current_move.segment_type==1){
@@ -271,16 +274,18 @@ void SegmentStatus::deliverRotationSegment() {
   gap_to_target_bearing=abs(current_bearing-current_move.target_bearing); // if target position is passed, will reaccelerate and do à 360°
   if (gap_to_target_bearing>5)
   {
-    rover.FL_motor.myspeed=128; 
-    rover.FR_motor.myspeed=-128;        
-    rover.RL_motor.myspeed=128;        
-    rover.RR_motor.myspeed=-128;        
+	// Rotate @ half speed
+    rover.FL_motor.myspeed=175; 
+    rover.FR_motor.myspeed=-175;        
+    rover.RL_motor.myspeed=175;        
+    rover.RR_motor.myspeed=-175;        
   }
   else {
-    rover.FL_motor.myspeed=16;
-    rover.FR_motor.myspeed=-16;
-    rover.RL_motor.myspeed=16;
-    rover.RR_motor.myspeed=-16;
+	// Rotate @ 10% speed getting close to target angle
+    rover.FL_motor.myspeed=35;
+    rover.FR_motor.myspeed=-35;
+    rover.RL_motor.myspeed=35;
+    rover.RR_motor.myspeed=-35;
   }
 }
 
@@ -292,7 +297,7 @@ bool SegmentStatus::readDecoders(){
   // Collect the 5 bytes
   SPI.transfer('s'); // 's' like Start to trigger matching on slave
   delayMicroseconds (10); // wait for the latching to complete
-  //read the 5 bytes expected
+  //read the 5 bytes expected - decoders are set to 127 for 0 ticks
   FL_ticks_step=((int) SPI.transfer(1))-127;
   FR_ticks_step=((int) SPI.transfer(2))-127;
   RL_ticks_step=((int) SPI.transfer(3))-127;
@@ -349,7 +354,7 @@ void Motor::setSpeed(){
   if (myspeed >0){
     digitalWrite(pinforward, HIGH);
     digitalWrite(pinbackward, LOW);
-    analogWrite(pinspeed, myspeed);
+    analogWrite(pinspeed, int(myspeed*255/MAX_SPEED));
   }
   if (myspeed == 0){
     digitalWrite(pinforward, LOW);
@@ -358,7 +363,7 @@ void Motor::setSpeed(){
   if (myspeed <0){
     digitalWrite(pinforward, LOW);
     digitalWrite(pinbackward, HIGH);
-    analogWrite(pinspeed, -myspeed);
+    analogWrite(pinspeed, int(-myspeed*255/MAX_SPEED));
   }
 }
 
@@ -415,7 +420,9 @@ void setup() {
     //Set time interrupt for driverover
 }
 
+
 // Interrupt service routines
+
 void receiveEvent(int howMany) {
   //segment_type 1 byte - 0 in case rotation, 1 in case straight
   //long target_ticks 4 bytes
@@ -463,7 +470,8 @@ void receiveEvent(int howMany) {
 //        Serial.println(ticks);
     
         next_move.target_bearing = Wire.read();
-        next_move.target_speed = Wire.read();
+        // convert byte received into a +/- MAX_SPEED value
+        next_move.target_speed = int((Wire.read()-127)*2*MAX_SPEED/256);
 //        Serial.print("target_bearing:");
 //        Serial.println(next_move.target_bearing);
 //        Serial.print("target_speed:");
@@ -509,7 +517,7 @@ void requestEvent() {
     buf[6]=(segment.millis_cum >>24 ) & 0xFF;
     buf[10]=segment.average_bearing; // 1 byte
     buf[11]=segment.current_bearing; // 1 byte
-    buf[12]=segment.speed_step; // 1 byte
+    buf[12]=(int(segment.speed_step+350)*255/MAX_SPEED/2)) & 0xFF; // converting [-350;+350] ticks/s to [0;255] - 127=0
 //    Wire.write(rover.teta_point); // 2 bytes TBD
     if (seg_completed && (next_seg_available == false)){
       buf[13]=true; //1 byte
