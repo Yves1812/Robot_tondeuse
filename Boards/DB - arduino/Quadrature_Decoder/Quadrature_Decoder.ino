@@ -4,13 +4,13 @@
 
 // Mega external interrupt pins 2, 3, 18, 19, 20, 21 beware 20 & 21 have pull-ups to 5V
 // 2 = FLPulse PORTE4
-// 22 = FLDir PORTA0
+// 26 = FLDir PORTA4
 // 3 = FRPulse PORTE5
-// 23 = FRDir PORTA2
+// 28 = FRDir PORTA6
 // 18 = RLPulse PORTD3
-// 24 = RLDir PORTB1
-// 19 = RFPulse PORTD2
-// 25 = RFDir PORTB3
+// 30 = RLDir PORTC7
+// 19 = RRPulse PORTD2
+// 32 = RRDir PORTC5
 
 // 50 = MISO
 // 52 = SCK
@@ -23,16 +23,16 @@
 // Quadrature encoders pins
 // Front Left encoder
 #define FrontLeftEncoderPulse 2
-#define FrontLeftEncoderDir 22 //PORTA 00000001
+#define FrontLeftEncoderDir 26 //PORTA 00000100
 // Front Right encoder
 #define FrontRightEncoderPulse 3
-#define FrontRightEncoderDir 24 //PORTA 00000100
+#define FrontRightEncoderDir 28 //PORTA 00000110
 // Rear Left encoder
 #define RearLeftEncoderPulse 18
-#define RearLeftEncoderDir 52 //PORTB 00000010
+#define RearLeftEncoderDir 30 //PORTC 00000111
 // Rear Right encoder
 #define RearRightEncoderPulse 19
-#define RearRightEncoderDir 50 //PORTB 00001000
+#define RearRightEncoderDir 32 //PORTC 00000101
  
 // global variables
 volatile byte ticks[5]={127,127,127,127,0};
@@ -48,7 +48,7 @@ void requestEvent();
 // and adjust counter + if A leads B or - if reverse
 void HandleFrontLeftPulse()
 {
-  if ( PINA & B00000001) {
+  if ( PINA & B00000100) {
     ticks[0] += 1;
   }
   else
@@ -59,7 +59,7 @@ void HandleFrontLeftPulse()
  
 void HandleFrontRightPulse()
 {
-  if (PINA & B00000100) {
+  if (PINA & B00000110) {
     ticks[1] += 1;
   }
   else
@@ -70,7 +70,7 @@ void HandleFrontRightPulse()
  
 void HandleRearLeftPulse()
 {
-  if (PINB & B00000010) {
+  if (PINC & B00000111) {
     ticks[2] += 1;
   }
   else
@@ -81,7 +81,7 @@ void HandleRearLeftPulse()
  
 void HandleRearRightPulse()
 {
-  if ( PINB & B00001000) {
+  if ( PINC & B00000101) {
     ticks[3] += 1;
   }
   else

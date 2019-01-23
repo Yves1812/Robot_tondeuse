@@ -1,19 +1,24 @@
 // 2018-10 Yves Bonnefont
 
-// Units : position in ticks, speed 255/ nominal ticks/s, bearing in 255/360°, angular speed in 255/360°/ms
+// Units : position in ticks, speed + or - 255/(nominal ticks/s), bearing in 255/360°, angular speed in 255/360°/ms
 // nominal 1 tick every 3ms
 // distance 1,5mm / tick
 // nominal 350 ticks/s or 52cm/s
 // nominal rotation speed 62°/s or 4.39 bits/s (assuming radius of wheel to rotation center = 0,5m) 
 
 // to do
-// set-up the UART connection to read compass
-// create 0.1s drumbeat and consecutive actions (read decoders, determine adjustments to deliver segment, apply adjustment, ask for next segment when relevant
+/// * manage emergency stops on rotation segments
+/// * manage speed adjustments on rotation segments
+/// * clarify speed values between signed int in ticks / millis, PWM value for motors (0-255) and byte received from MU (0-255)
+/// * Check pins forward and backward
+/// * check average bearing calculation
+
+// SPI bus data formats
 // * ticks_cum - long
 // * millis_cum -long
 // * average_bearing - byte
 // * current_bearing - byte
-// * speed_step - byte
+// * speed_step - byte, manipulaed as int in the rest of the program
 // * teta_point - byte
 // * motor_power x4 - byte x4
 // check calculation method between floats and ints to avoid stupid roundings
@@ -62,7 +67,7 @@ struct segmentOrder{
   unsigned int segment_id;
   long target_ticks;
   byte target_bearing;
-  byte target_speed;
+  int target_speed; // Can vary between +255 and -255 as SPI sends 1 byte for speed, need to adjust in reception and send processes
 };
 
 class Motor{
@@ -106,7 +111,7 @@ class SegmentStatus {
     long ticks_cum;
     int gap_cum;
     unsigned long millis_cum;
-    byte speed_cum;
+    int speed_cum;
   
     short FL_ticks_step;
   	short FR_ticks_step;
@@ -115,7 +120,7 @@ class SegmentStatus {
   	short ticks_step;
     short gap_step;
   	int millis_step;
-  	byte speed_step;
+  	int speed_step;
   	
   	byte last_bearing;
     byte current_bearing;
@@ -190,10 +195,11 @@ boolean SegmentStatus::updateStatus(){
     millis_cum+=millis_step;
 
     if (current_move.segment_type==1){ // this is a straight segment
-      ticks_step=min(FL_ticks_step, RL_ticks_step)+min(FR_ticks_step, RR_ticks_step);
+      ticks_step=min(min(FL_ticks_step, RL_ticks_step),min(FR_ticks_step, RR_ticks_step));
       ticks_cum+=ticks_step;
       speed_step=ticks_step/millis_step;
       speed_cum=ticks_cum/millis_cum;
+// ???? need to check this, not clear
       average_bearing=((current_bearing+last_bearing)*ticks_step/2+(ticks_cum-ticks_step)*average_bearing)/ticks_cum; //shall be in an update status method of segment to for better sync of bearing anf ticks measurment
       gap_cum+=min(FL_ticks_step, RL_ticks_step)-min(FR_ticks_step, RR_ticks_step);
     }
@@ -262,7 +268,7 @@ void SegmentStatus::deliverRotationSegment() {
   // manage turn right or left to go faster
   int gap_to_target_bearing;
   
-  gap_to_target_bearing=abs(current_bearing-current_move.target_bearing);
+  gap_to_target_bearing=abs(current_bearing-current_move.target_bearing); // if target position is passed, will reaccelerate and do à 360°
   if (gap_to_target_bearing>5)
   {
     rover.FL_motor.myspeed=128; 
@@ -536,7 +542,7 @@ void driveRover(){
     // if new seg available, check segment Id to see if update or new and process accordingly, ie start new segment (n+1) or calcultae differential segment_target
     //  to be checked
     if (next_seg_available){ // MU sent a new segment
-      if (current_move.segment_id == next_move.segment_id){ // received segent has same id as current => this is an update => appmy immediatelly
+      if (current_move.segment_id == next_move.segment_id){ // received segent has same id as current => this is an update => apply immediatelly
         current_move.target_ticks=next_move.target_ticks-segment.ticks_cum;
         if (current_move.target_ticks<0) {current_move.target_ticks=0;}
         current_move.target_bearing=next_move.target_bearing;
@@ -589,7 +595,8 @@ void driveRover(){
     rover.FL_motor.stop();
     rover.FR_motor.stop();
     rover.RL_motor.stop();
-    rover.RR_motor.stop();       
+    rover.RR_motor.stop();
+    Serial.print("Error reading sensors - rover stopped");      
   }
 }
 
@@ -597,12 +604,13 @@ int i=0;
 
 // Loop routine
 void loop(){
-   if (millis()-last_moment>500){ // for testing purpose
+   if (millis()-last_moment>200){ // for testing purpose
      last_moment=millis();
+     driveRover();
 //     test_I2C_w_segment_receiving();
 //     test_I2C_w_segment_receiving();
-      Serial.println("Trying to read compass...");
-      test_compass();
+//      Serial.println("Trying to read compass...");
+//      test_compass();
 //    Serial.println(last_moment);
 //     test_decoders();
    }

@@ -64,7 +64,7 @@ class Device(object):
         specified I2C bus number."""
         self._address = address
         self._bus = SMBus(busnum)
-        self._logger = logging.getLogger('Adafruit_I2C.Device.Bus.{0}.Address.{1:#0X}'.format(busnum, address))
+        self._logger = logging.getLogger('Rover_log')
 
     def writeByte(self, value):
         """Write an 8-bit value"""
@@ -100,6 +100,9 @@ class Device(object):
 
 class Rover(object):
     def __init__(self,x=0.0,y=0.0,speedx=0.0,speedy=0.0,teta_point=0,bearing8=0,ice_status=False, battery_level=None,traction_power=[0,0,0,0], messages=[]):
+        # Make logger available
+        self._logger = logging.getLogger('Rover_log')
+
         #Initialization
         self.checks_succeeded=None
         self.initialization_completed=False
@@ -178,12 +181,10 @@ class Rover(object):
             decoder_data_next_needed=[0,1,0,0,0,2,0,0,0,4,8,16,32,1] # no seg needed
             try:
                 decoder_data=self.TP_board.readList(length, active_segment_register)
+                self._logger.info("Set of bytes received from TP: "+str(decoder_data))
             except:
-                print("Using dummy decoder data for segment status")
+                self._logger.debug("Using dummy decoder data for segment status")
                 decoder_data=decoder_data_next_needed
-##            print('Segment status from TP')
-##            print("Set of bytes received fro TP: ",decoder_data)
-##            print("Decoding...")
             self.routing.active_segment_status.segment_id=decoder_data[0]*256+decoder_data[1]
             self.routing.active_segment_status.ticks_cum=(((decoder_data[2]*256+decoder_data[3])*256+decoder_data[4])*256+decoder_data[5])
             self.routing.active_segment_status.millis_cum=(((decoder_data[6]*256+decoder_data[7])*256+decoder_data[8])*256+decoder_data[9])
@@ -192,17 +193,16 @@ class Rover(object):
             self.routing.active_segment_status.speed_step=decoder_data[12]
             #self.routing.active_segment_status.teta_point=decoder_data[13]
             self.routing.next_segment_needed=decoder_data[13]
-            print('id:', self.routing.active_segment_status.segment_id)
-            print('ticks_cum: ',self.routing.active_segment_status.ticks_cum)
-            print('millis_cum: ',self.routing.active_segment_status.millis_cum)
-            print('avergae bearing: ',self.routing.active_segment_status.average_bearing)
-            print('current bearing: ',self.routing.active_segment_status.current_bearing)
-            print('speed_step: ',self.routing.active_segment_status.speed_step)
-            print('segment_needed: ',self.routing.next_segment_needed)
-            print()
+            self._logger.debug("Receied segment status "+'id: '+str(self.routing.active_segment_status.segment_id)+
+                          ' ticks_cum: '+str(self.routing.active_segment_status.ticks_cum)+
+                          ' millis_cum: '+str(self.routing.active_segment_status.millis_cum)+
+                          ' avergae bearing: '+str(self.routing.active_segment_status.average_bearing)+
+                          ' current bearing: '+str(self.routing.active_segment_status.current_bearing)+
+                          ' speed_step: '+str(self.routing.active_segment_status.speed_step)+
+                          ' segment_needed: '+str(self.routing.next_segment_needed))
 
         else :
-            print("no active segment to read")
+            self._logger.warning("Failed to read segment from TP - no active segment to read")
 
     def update_rover_position(self):
     # update rover position data based on latest segment status and returns current x,y coordinate as a waypoint
@@ -222,7 +222,7 @@ class Rover(object):
         except:
             print("Using dummy decoder data for power data")
             decoder_data=[10,20,30,40]
-        print("Power decoder data: ",decoder_data)
+        self._logger.debug("Power decoder data: "+str(decoder_data))
         self.traction_power[0]=decoder_data[0]
         self.traction_power[1]=decoder_data[1]
         self.traction_power[2]=decoder_data[2]
@@ -230,9 +230,11 @@ class Rover(object):
 # not implemented  self.ice_status=decoder_data[2]
 
     def push_segment(self, segment):
-#        print("Pushing segment# :", segment)
-        self.routing.segments[segment].print()
+    # Pushes active segment to TP, including play/pause with self.moving parameter
+    # if TP identifies this is an update (same segment id), it will complete updated segment - completed number of ticks at new speed
+    # This design choice allows for a non fully uptodate segment status in MU and faster emergency stop
 
+#        self.routing.segments[segment].print()
         data=[]
         data.append(self.routing.segments[segment].segment_type)
         data.append((self.routing.segments[segment].segment_id & 0xFF00) >> 8) #MSB first
@@ -243,16 +245,15 @@ class Rover(object):
         data.append((self.routing.segments[segment].target_ticks & 0x000000FF)) 
         data.append(self.routing.segments[segment].target_bearing)
         data.append(self.routing.segments[segment].target_speed*self.moving)
-##        i=0
-##        for item in data:
-##            print("Pushed byte:",i," ",item)
-##            i+=1
+        new_seg_str=""
+        for item in data:
+            new_seg_str+=str(item)+":"
         # need to add error management
+        self._logger.debug("Pushing segment bytes to TP. "+new_seg_str)
         try:
             self.TP_board.writeList(data,routing_register)
         except :
-            print("Failed to push new segment to TP board")
-            print("Continuing in test mode")
+            self._logger.warning("Failed to push new segment to TP board - Continuing in test mode")
         self.routing.active_segment=segment
 
     def detectRouting(self):
@@ -262,24 +263,24 @@ class Rover(object):
                     if entry.name.startswith('routing_') and entry.is_file():
                         self.detected_routing=entry.name[8:-6] #name format should be routing_###.route
         except OSError as e:
-            print("Routing path not found")
+            self._logger.warning("Routing path not found")
             return -1
 
     def set_routing(self, new_routing):
         # Set routing set active routing, need to move_rover to get robot moving
         if (self.routing.loadRouting(new_routing)==0):
-            print("New routing loaded")
+            self._logger.debug("New routing loaded")
             self.routing.buildSegments()
-            print("Segments have been built")
             self.routing.active_segment=0
             self.routing.routing_name=new_routing
-            print("Routing ", self.routing.routing_name, " made active")
+            self._logger.debug("Routing "+self.routing.routing_name+" made active")
             return 0
         else:
-            print("Failed to set routing")
+            self._logger.warning("Failed to set routing "+new_routing)
             return -1
 
     def move_rover(self):
+        # Pushes active segment to TP for execution, if no segment specified, segment 0 is pushed
         if (self.routing.active_segment == None):
             self.routing.active_segment=0
         self.push_segment(self.routing.active_segment)
@@ -309,20 +310,22 @@ class Rover(object):
             elif command == "changeroute" :
                 try :
                     self.detectRouting()
-                    print("New routing found: ", self.detected_routing)
-                    print("Loading ...")
+                    self._logger.debug("New routing found: "+str(self.detected_routing))
                 except:
-                    print("No new routing found")
-                    # Try to load initial routing
+                    self._logger.warning("Failed to change route - No new routing found")
+                    # Try to load  routing
                 if (self.detected_routing!=None) :
                     loading=self.set_routing(self.detected_routing)
                     if (loading==0):
-                        print("New routing loaded.")
+                        self.move_rover()
+                        self._logger.debug("New routing loaded and activated.")
                     else : 
-                        print("Error loading new routing.")
+                        self._logger.warning("Could not load new routing.")
                 self.detected_routing == None
         if (current!=self.moving):
-            self.move_rover()    
+            self.move_rover()
+####### play/pause based on self.moving not implemented = move_rover will repush current segment regardless of completed chunck
+####### shall be implemented based on speed change
 
     def initialize(self):
         # Do some checks and set check_succeeded accordingly
@@ -331,17 +334,16 @@ class Rover(object):
         if self.detected_routing == None :
             try :
                 self.detectRouting()
-                print("desired initial routing found: ", self.detected_routing)
-                print("Loading ...")
+                self._logger.debug("Initial routing found: "+str(self.detected_routing))
             except:
-                print("No initil routing found")
+                self._logger.warning("No initial routing found.")
                 # Try to load initial routing
         if ((self.detected_routing!=None) and (self.set_routing(self.detected_routing)!=0)):
             self.detected_routing == None
-            print("Error loading initial routing.")
+            self._logger.warning("Error loading initial routing.")
         if (self.checks_succeeded and  self.routing.routing_name!=None):
             self.initialization_completed=True
-            print("Initialization completed and initial routing loaded")
+            self._logger.debug("Initialization completed and initial routing loaded")
 
     def loop(self):
         #Search for pending commands and process them
@@ -354,7 +356,7 @@ class Rover(object):
                 self.update_rover_position()
                 self.routing.next_segment_needed=False
                 if (self.routing.active_segment+1 < len(self.routing.segments)):
-                    print("Pushing next segment to TP.", self.routing.active_segment+1)
+                    self._logger.info("Pushing next segment to TP. "+str(self.routing.active_segment+1))
                     self.push_segment(self.routing.active_segment+1)
                 else:
                     pass
@@ -506,16 +508,31 @@ class segment_status(object):
 
 if __name__ == "__main__":
     print("Welcome to my rover, Yves !")
+    # create logger 'Rover_log'
+    logger = logging.getLogger('Rover_log')
+    logger.setLevel(logging.DEBUG)    
+    # create file handler which logs even debug messages
+    fh = logging.FileHandler('rover.log')
+    fh.setLevel(logging.DEBUG)
+    # create console handler with a higher log level
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.WARNING)
+    # create formatter and add it to the handlers
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+    # add the handlers to the logger
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+
 ## Initialization ##
     myrover=Rover()
+    logger.warning("My rover object initialized")
     try:
         #Try initialization every second until success
         while not myrover.initialization_completed :
             myrover.initialize()
             time.sleep(1)
-##        for item in myrover.routing.segments:
-##            item.print()
-
                
 ## Forever loop
 ##        try:
