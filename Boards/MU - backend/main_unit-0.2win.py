@@ -40,7 +40,7 @@ except ImportError:
 #### Segment data          #########################################################
 # speed in ticks / seconds in [-350;350]                                           #
 # ticks in ticks                                                                   #
-# bearing as a byte [0;255]                                                        #
+# bearing8 as a byte [0;255]                                                       #
 #                                                                                  #
 ####################################################################################
 
@@ -196,15 +196,15 @@ class Rover(object):
             self.routing.active_segment_status.ticks_cum=(((decoder_data[2]*256+decoder_data[3])*256+decoder_data[4])*256+decoder_data[5])
             self.routing.active_segment_status.millis_cum=(((decoder_data[6]*256+decoder_data[7])*256+decoder_data[8])*256+decoder_data[9])
             self.routing.active_segment_status.average_bearing8=decoder_data[10]
-            self.routing.active_segment_status.current_bearing=decoder_data[11]
+            self.routing.active_segment_status.current_bearing8=decoder_data[11]
             self.routing.active_segment_status.speed_step=(decoder_data[12]-127)*350/255
             #self.routing.active_segment_status.teta_point=decoder_data[13]
             self.routing.next_segment_needed=decoder_data[13]
             self._logger.debug("Receied segment status "+'id: '+str(self.routing.active_segment_status.segment_id)+
                           ' ticks_cum: '+str(self.routing.active_segment_status.ticks_cum)+
                           ' millis_cum: '+str(self.routing.active_segment_status.millis_cum)+
-                          ' avergae bearing: '+str(self.routing.active_segment_status.average_bearing)+
-                          ' current bearing: '+str(self.routing.active_segment_status.current_bearing)+
+                          ' avergae bearing: '+str(self.routing.active_segment_status.average_bearing8)+
+                          ' current bearing: '+str(self.routing.active_segment_status.current_bearing8)+
                           ' speed_step: '+str(self.routing.active_segment_status.speed_step)+
                           ' segment_needed: '+str(self.routing.next_segment_needed))
 
@@ -213,8 +213,8 @@ class Rover(object):
 
     def update_rover_position(self):
     # update rover position data based on latest segment status and returns current x,y coordinate as a waypoint
-        self.delta_x=self.routing.active_segment_status.ticks_cum / TICKS_PER_METER * cos(self.routing.active_segment_status.current_bearing*6.28/255)
-        self.delta_y=self.routing.active_segment_status.ticks_cum / TICKS_PER_METER * sin(self.routing.active_segment_status.current_bearing*6.28/255)
+        self.delta_x=self.routing.active_segment_status.ticks_cum / TICKS_PER_METER * cos(self.routing.active_segment_status.current_bearing8*6.28/255)
+        self.delta_y=self.routing.active_segment_status.ticks_cum / TICKS_PER_METER * sin(self.routing.active_segment_status.current_bearing8*6.28/255)
         if self.routing.next_segment_needed :
             self.x+=self.delta_x
             self.y+=self.delta_y
@@ -314,7 +314,7 @@ class Rover(object):
                 self.moving=1
             elif command == "pause" :
                 self.moving=0
-            elif command == "changeroute" :
+            elif command == "changeroute" : # will load new route but not play it, play will still be needed
                 try :
                     self.detectRouting()
                     self._logger.debug("New routing found: "+str(self.detected_routing))
@@ -324,15 +324,13 @@ class Rover(object):
                 if (self.detected_routing!=None) :
                     loading=self.set_routing(self.detected_routing)
                     if (loading==0):
-                        self.move_rover()
+                        self.moving=0
                         self._logger.debug("New routing loaded and activated.")
                     else : 
                         self._logger.warning("Could not load new routing.")
                 self.detected_routing == None
         if (current!=self.moving):
-            self.move_rover()
-####### play/pause based on self.moving not implemented = move_rover will repush current segment regardless of completed chunck
-####### shall be implemented based on speed change
+            self.move_rover() # will repush current segment to TP with ajusted speed (0 or target), TP will manage resume right after last completed tick
 
     def initialize(self):
         # Do some checks and set check_succeeded accordingly
@@ -495,7 +493,7 @@ class segment(object):
         print("Segment Type: ",self.segment_type) #0 in case rotation, 1 in case straight
         print("Segment id: ",self.segment_id)
         print("Segment target ticks: ",self.target_ticks)
-        print("Segment target bearing: ", self.target_bearing)
+        print("Segment target bearing: ", self.target_bearing8)
         print("Segment target speed: ", self.target_speed)
         print("")
         
@@ -507,10 +505,11 @@ class segment_status(object):
         self.segment_id=segment_id
         self.ticks_cum=0
         self.millis_cum=0
-        self.average_bearing=None
-        self.current_bearing=None
+        self.average_bearing8=None
+        self.current_bearing8=None
         #self.teta_point=None not implemented
         self.speed_step=None #speed_step is the speed mesured between the last two position measures made by TP board (@10Hz)
+## Opportunity to simplify by moving status variables to segment class
 
 
 if __name__ == "__main__":
@@ -539,12 +538,13 @@ if __name__ == "__main__":
         #Try initialization every second until success
         while not myrover.initialization_completed :
             myrover.initialize()
-            time.sleep(1)
+            time.sleep(0.1)
                
 ## Forever loop
 ##        try:
         while True :
             myrover.loop()
+            time.sleep(0.05)
                                              
 
             ##myrover.query_db_status()
