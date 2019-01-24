@@ -1,0 +1,416 @@
+2019-01-23 17:21:22,367 - Rover_log - WARNING - My rover object initialized
+2019-01-23 17:21:22,388 - Rover_log - DEBUG - Initial routing found: test_routing
+2019-01-23 17:21:22,413 - Rover_log - DEBUG - New routing loaded
+2019-01-23 17:21:22,414 - Rover_log - DEBUG - Routing test_routing made active
+2019-01-23 17:21:22,415 - Rover_log - DEBUG - Initialization completed and initial routing loaded
+2019-01-23 17:21:23,426 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:23,428 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:23,433 - Rover_log - INFO - Pushing next segment to TP. 1
+2019-01-23 17:21:23,434 - Rover_log - DEBUG - Pushing segment bytes to TP. 1:0:1:0:0:1:94:0:127.5:
+2019-01-23 17:21:23,435 - Rover_log - WARNING - Failed to push new segment to TP board - Continuing in test mode
+2019-01-23 17:21:46,027 - Rover_log - WARNING - My rover object initialized
+2019-01-23 17:21:46,046 - Rover_log - DEBUG - Initial routing found: test_routing
+2019-01-23 17:21:46,047 - Rover_log - DEBUG - New routing loaded
+2019-01-23 17:21:46,048 - Rover_log - DEBUG - Routing test_routing made active
+2019-01-23 17:21:46,049 - Rover_log - DEBUG - Initialization completed and initial routing loaded
+2019-01-23 17:21:46,154 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:46,154 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:46,155 - Rover_log - INFO - Pushing next segment to TP. 1
+2019-01-23 17:21:46,155 - Rover_log - DEBUG - Pushing segment bytes to TP. 1:0:1:0:0:1:94:0:127.5:
+2019-01-23 17:21:46,156 - Rover_log - WARNING - Failed to push new segment to TP board - Continuing in test mode
+2019-01-23 17:21:46,246 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:46,247 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:46,248 - Rover_log - INFO - Pushing next segment to TP. 2
+2019-01-23 17:21:46,248 - Rover_log - DEBUG - Pushing segment bytes to TP. 0:0:2:0:0:0:0:0:127.5:
+2019-01-23 17:21:46,249 - Rover_log - WARNING - Failed to push new segment to TP board - Continuing in test mode
+2019-01-23 17:21:46,385 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:46,386 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:46,386 - Rover_log - INFO - Pushing next segment to TP. 3
+2019-01-23 17:21:46,387 - Rover_log - DEBUG - Pushing segment bytes to TP. 1:0:3:0:0:1:94:0:127.5:
+2019-01-23 17:21:46,387 - Rover_log - WARNING - Failed to push new segment to TP board - Continuing in test mode
+2019-01-23 17:21:46,524 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:46,525 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:46,526 - Rover_log - INFO - Pushing next segment to TP. 4
+2019-01-23 17:21:46,526 - Rover_log - DEBUG - Pushing segment bytes to TP. 0:0:4:0:0:0:0:63:127.5:
+2019-01-23 17:21:46,527 - Rover_log - WARNING - Failed to push new segment to TP board - Continuing in test mode
+2019-01-23 17:21:46,663 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:46,663 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:46,664 - Rover_log - INFO - Pushing next segment to TP. 5
+2019-01-23 17:21:46,665 - Rover_log - DEBUG - Pushing segment bytes to TP. 1:0:5:0:0:1:94:63:127.5:
+2019-01-23 17:21:46,665 - Rover_log - WARNING - Failed to push new segment to TP board - Continuing in test mode
+2019-01-23 17:21:46,802 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:46,803 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:46,803 - Rover_log - INFO - Pushing next segment to TP. 6
+2019-01-23 17:21:46,804 - Rover_log - DEBUG - Pushing segment bytes to TP. 0:0:6:0:0:0:0:127:127.5:
+2019-01-23 17:21:46,804 - Rover_log - WARNING - Failed to push new segment to TP board - Continuing in test mode
+2019-01-23 17:21:46,941 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:46,942 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:46,942 - Rover_log - INFO - Pushing next segment to TP. 7
+2019-01-23 17:21:46,943 - Rover_log - DEBUG - Pushing segment bytes to TP. 1:0:7:0:0:1:94:127:127.5:
+2019-01-23 17:21:46,943 - Rover_log - WARNING - Failed to push new segment to TP board - Continuing in test mode
+2019-01-23 17:21:47,080 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:47,082 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:47,082 - Rover_log - INFO - Pushing next segment to TP. 8
+2019-01-23 17:21:47,083 - Rover_log - DEBUG - Pushing segment bytes to TP. 0:0:8:0:0:0:0:159:127.5:
+2019-01-23 17:21:47,084 - Rover_log - WARNING - Failed to push new segment to TP board - Continuing in test mode
+2019-01-23 17:21:47,219 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:47,220 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:47,221 - Rover_log - INFO - Pushing next segment to TP. 9
+2019-01-23 17:21:47,222 - Rover_log - DEBUG - Pushing segment bytes to TP. 1:0:9:0:0:1:238:159:127.5:
+2019-01-23 17:21:47,222 - Rover_log - WARNING - Failed to push new segment to TP board - Continuing in test mode
+2019-01-23 17:21:47,358 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:47,359 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:47,421 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:47,422 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:47,482 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:47,483 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:47,543 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:47,544 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:47,605 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:47,606 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:47,667 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:47,668 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:47,729 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:47,730 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:47,791 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:47,792 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:47,852 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:47,853 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:47,915 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:47,915 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:47,977 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:47,978 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,038 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,039 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,099 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,100 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,161 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,162 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,223 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,223 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,284 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,285 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,346 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,347 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,407 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,407 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,469 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,469 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,531 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,532 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,593 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,594 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,654 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,655 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,715 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,716 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,777 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,778 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,839 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,840 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,901 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,902 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:48,963 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:48,964 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,024 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,025 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,086 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,086 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,147 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,148 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,209 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,210 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,270 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,271 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,332 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,333 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,393 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,394 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,456 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,457 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,517 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,518 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,579 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,579 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,643 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,644 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,702 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,703 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,763 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,764 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,825 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,825 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,887 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,887 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:49,948 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:49,949 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,010 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,011 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,072 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,073 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,132 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,133 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,194 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,195 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,256 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,257 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,318 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,319 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,379 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,380 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,442 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,442 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,504 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,505 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,566 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,567 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,627 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,628 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,690 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,691 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,751 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,752 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,812 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,813 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,874 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,875 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,936 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,936 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:50,997 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:50,998 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,059 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,060 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,121 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,122 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,182 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,183 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,244 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,245 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,307 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,307 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,368 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,368 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,429 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,430 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,491 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,492 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,552 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,553 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,614 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,614 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,675 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,676 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,737 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,738 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,799 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,800 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,862 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,863 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,923 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,924 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:51,986 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:51,987 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,046 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,047 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,101 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,102 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,154 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,155 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,217 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,217 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,278 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,279 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,340 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,341 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,402 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,402 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,464 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,465 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,526 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,526 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,586 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,587 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,648 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,648 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,709 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,710 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,771 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,775 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,832 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,833 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,894 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,894 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:52,956 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:52,957 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,017 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,018 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,078 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,079 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,141 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,141 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,202 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,203 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,264 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,265 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,326 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,327 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,388 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,389 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,450 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,451 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,512 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,513 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,574 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,575 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,636 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,636 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,697 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,698 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,759 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,761 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,820 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,821 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,882 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,883 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:53,944 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:53,945 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,006 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,007 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,067 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,068 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,129 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,134 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,191 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,192 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,253 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,254 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,314 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,314 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,376 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,376 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,436 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,437 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,498 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,498 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,560 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,561 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,621 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,622 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,682 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,683 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,743 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,744 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,806 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,807 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,868 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,869 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,929 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,930 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:54,992 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:54,992 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,054 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,055 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,115 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,116 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,177 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,177 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,238 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,239 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,301 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,301 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,362 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,363 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,423 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,424 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,485 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,486 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,548 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,548 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,611 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,612 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,671 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,672 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,732 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,733 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,795 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,795 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,856 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,857 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,917 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,918 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:55,981 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:55,981 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,042 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,042 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,102 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,103 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,164 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,164 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,225 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,227 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,287 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,288 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,348 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,349 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,410 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,412 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,472 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,473 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,533 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,534 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,595 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,596 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,656 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,657 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,718 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,719 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,780 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,781 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,841 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,842 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,902 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,903 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:56,964 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:56,965 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,027 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,028 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,088 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,089 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,151 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,153 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,211 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,212 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,273 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,274 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,335 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,335 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,397 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,398 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,459 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,460 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,521 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,522 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,583 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,584 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,645 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,646 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,706 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,707 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,768 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,769 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,829 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,830 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,891 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,892 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:57,953 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:57,953 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:58,014 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:58,015 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:58,076 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:58,077 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:58,138 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:58,139 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:58,199 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:58,200 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1
+2019-01-23 17:21:58,260 - Rover_log - DEBUG - Using dummy decoder data for segment status
+2019-01-23 17:21:58,261 - Rover_log - DEBUG - Receied segment status id: 1 ticks_cum: 2 millis_cum: 4 avergae bearing: 8 current bearing: 16 speed_step: -130.3921568627451 segment_needed: 1

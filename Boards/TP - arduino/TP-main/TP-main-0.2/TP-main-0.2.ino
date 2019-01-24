@@ -9,9 +9,7 @@
 // to do
 /// * manage emergency stops on rotation segments
 /// * manage speed adjustments on rotation segments
-/// * clarify speed values between signed int in ticks / millis, PWM value for motors (0-255) and byte received from MU (0-255)
 /// * Check pins forward and backward
-/// * check average bearing calculation
 
 // SPI bus data formats
 // * ticks_cum - long
@@ -517,7 +515,7 @@ void requestEvent() {
     buf[6]=(segment.millis_cum >>24 ) & 0xFF;
     buf[10]=segment.average_bearing; // 1 byte
     buf[11]=segment.current_bearing; // 1 byte
-    buf[12]=(int(segment.speed_step+350)*255/MAX_SPEED/2)) & 0xFF; // converting [-350;+350] ticks/s to [0;255] - 127=0
+    buf[12]=(int((segment.speed_step+350)*255/MAX_SPEED/2)) & 0xFF; // converting [-350;+350] ticks/s to [0;255] - 127=0
 //    Wire.write(rover.teta_point); // 2 bytes TBD
     if (seg_completed && (next_seg_available == false)){
       buf[13]=true; //1 byte
