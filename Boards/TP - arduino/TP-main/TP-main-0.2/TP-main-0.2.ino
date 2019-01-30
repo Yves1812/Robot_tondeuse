@@ -92,12 +92,12 @@ class Rover {
     Motor FR_motor;
     Motor RL_motor;
     Motor RR_motor;
-	  long x;
-	  long y;
-	  int vx;
-	  int vy;
-	  byte bearing;
-	  byte teta_point;
+//	  long x;
+//	  long y;
+//	  int vx;
+//	  int vy;
+//	  byte bearing;
+//	  byte teta_point;
 
     Rover(void);
     void begin(void);
@@ -141,7 +141,7 @@ class SegmentStatus {
 // ************************************************************************************************************** //
 unsigned long last_moment=0;
 volatile int I2C_buffer[5];
-volatile boolean seg_completed, next_seg_available;
+volatile boolean seg_completed=true, next_seg_available=false; // seg completed initialized to true to enable initial seg_order load
 volatile Rover rover;
 volatile SegmentStatus segment;
 volatile segmentOrder current_move;
@@ -223,7 +223,7 @@ boolean SegmentStatus::updateStatus(){
 }
 
 void SegmentStatus::deliverStraightSegment() {
-  float LR_PWM_factor, FR_Left_PWM_factor, FR_Right_PWM_factor, scaling_factor;
+  float LR_PWM_factor=1.0, FR_Left_PWM_factor=1.0, FR_Right_PWM_factor=1.0, scaling_factor=1.0;
   int target_speed;
 
   if (segment.gap_cum>=2 || segment.gap_cum<=-2){ // There is a gap between left slowest wheel and right slowest wheel
@@ -252,7 +252,8 @@ void SegmentStatus::deliverStraightSegment() {
   {
     target_speed=current_move.target_speed;
   }
-  scaling_factor=target_speed/(max(max(rover.FL_motor.myspeed, rover.FR_motor.myspeed), max(rover.RL_motor.myspeed,rover.RR_motor.myspeed)));
+  // added max(1,...) to avoid errors when all motor speeds are 0 - this is the case at start!
+  scaling_factor=target_speed/(max(1,max(max(rover.FL_motor.myspeed, rover.FR_motor.myspeed), max(rover.RL_motor.myspeed,rover.RR_motor.myspeed))));
   // Cap speed variation to +/- 20%
   if (scaling_factor <0.8) {scaling_factor=0.8;}
   if (scaling_factor > 1.2) {scaling_factor = 1.2;}
@@ -371,7 +372,7 @@ void Motor::stop(){
 }
 
 Rover::Rover(void){
-	x=0;
+  last_moment=0;
 }
 void Rover::begin(void){
   FL_motor.set(PinForwardFL,PinBackwardFL,PinSpeedFL);
@@ -397,6 +398,7 @@ void setup() {
 
   segment.begin();
   rover.begin();
+  current_move.segment_id=0; //0 means no initial order has been received
 
 // I2C bus set-up
   Wire.begin(SLAVE_ADDRESS);               // join MU i2c bus as a slave with address 0x16 (0-7 reserved) 
@@ -414,8 +416,26 @@ void setup() {
   // Slow down the master a bit
   SPI.setClockDivider(SPI_CLOCK_DIV8);
 
-// TO DO
-    //Set time interrupt for driverover
+// To be commented out for test purpose
+//  while (not next_seg_available) {
+//    delay(100);
+//  } // Wait for first order_segment to be sent
+//  current_move.segment_type=next_move.segment_type; //0 in case rotation, 1 in case straight
+//  current_move.segment_id=next_move.segment_id;
+//  current_move.target_ticks=next_move.target_ticks;
+//  current_move.target_bearing=next_move.target_bearing;
+//  current_move.target_speed=next_move.target_speed;
+//  next_seg_available=false;
+//  seg_completed=false;
+
+// to be used for test only
+//  current_move.segment_type=1; //0 in case rotation, 1 in case straight
+//  current_move.segment_id=1;
+//  current_move.target_ticks=10000;
+//  current_move.target_bearing=90;
+//  current_move.target_speed=100; // Can vary between +350 and -350 converted from 1 byte SPI
+
+  segment.begin(); // requires compass to be connected (initial compass read)
 }
 
 
@@ -547,55 +567,42 @@ void driveRover(){
   if (segment.updateStatus()) { // Sensors could be read ok?
     // if new seg available, check segment Id to see if update or new and process accordingly, ie start new segment (n+1) or calcultae differential segment_target
     //  to be checked
-    if (next_seg_available){ // MU sent a new segment
-      if (current_move.segment_id == next_move.segment_id){ // received segent has same id as current => this is an update => apply immediatelly
-        current_move.target_ticks=next_move.target_ticks-segment.ticks_cum;
-        if (current_move.target_ticks<0) {current_move.target_ticks=0;}
+    if ((next_seg_available) && (current_move.segment_id == next_move.segment_id)){ // MU sent an update of current segment
+      current_move.target_ticks=next_move.target_ticks-segment.ticks_cum;
+      if (current_move.target_ticks<0) {current_move.target_ticks=0;}
+      current_move.target_bearing=next_move.target_bearing;
+      current_move.target_speed=next_move.target_speed;
+      next_seg_available=false;
+      seg_completed=false;
+      segment.begin();
+    }
+    if (seg_completed){ 
+      if (next_seg_available) { // received segment and current one is completed - process new segment
+        current_move.segment_type=next_move.segment_type; //0 in case rotation, 1 in case straight
+        current_move.segment_id=next_move.segment_id;
+        current_move.target_ticks=next_move.target_ticks;
         current_move.target_bearing=next_move.target_bearing;
         current_move.target_speed=next_move.target_speed;
         next_seg_available=false;
         seg_completed=false;
         segment.begin();
       }
-      else {
-        if (seg_completed){ // received segment is next segment and current one is completed - process new segment
-          current_move.segment_type=next_move.segment_type; //0 in case rotation, 1 in case straight
-          current_move.segment_id=next_move.segment_id;
-          current_move.target_ticks=next_move.target_ticks;
-          current_move.target_bearing=next_move.target_bearing;
-          current_move.target_speed=next_move.target_speed;
-          next_seg_available=false;
-          seg_completed=false;
-          segment.begin();
-        }
-        else { // recived new segment is the next one but current one is not completed => continue current
-          if (current_move.segment_type == 1){
-            segment.deliverStraightSegment();
-          }
-          if (current_move.segment_type == 0){
-            segment.deliverRotationSegment();
-          }
-          rover.move_rover();
-        }
-      }
-    }
-    else { // No new segmet is availabe
-      if (!seg_completed){ // current segment is not completed => continue
-        if (current_move.segment_type == 1){
-          segment.deliverStraightSegment();
-        }
-        if (current_move.segment_type == 0){
-          segment.deliverRotationSegment();
-        }
-        rover.move_rover();
-      }
-      else { // No new segmment is available but current one is completed => stop rover
+      else { // seg completed but no new segmment is available => stop rover
         rover.FL_motor.stop();
         rover.FR_motor.stop();
         rover.RL_motor.stop();
         rover.RR_motor.stop();
       }
-    }
+    } 
+    else { // current SEG is not completed => continue current
+      if (current_move.segment_type == 1){
+        segment.deliverStraightSegment();
+      }
+      if (current_move.segment_type == 0){
+        segment.deliverRotationSegment();
+      }
+      rover.move_rover();
+    }   
   }
   else { // Sensors could not be read properly => stop rover as a safeguard measure
     rover.FL_motor.stop();
@@ -612,24 +619,91 @@ int i=0;
 void loop(){
    if (millis()-last_moment>200){ // for testing purpose
      last_moment=millis();
-     driveRover();
+//     test_motors(0);
+//     driveRover();
 //     test_I2C_w_segment_receiving();
 //     test_I2C_w_segment_receiving();
-//      Serial.println("Trying to read compass...");
-//      test_compass();
-//    Serial.println(last_moment);
+      test_compass();
+//     test_decoders_basic();
 //     test_decoders();
+
    }
 }
 
 
 // ******************* Test routines - commented out in production version **************************** // 
+void test_motors(int i){
+  rover.FL_motor.myspeed=i; 
+  rover.FR_motor.myspeed=i;        
+  rover.RL_motor.myspeed=i;        
+  rover.RR_motor.myspeed=i;
+  rover.move_rover();
+  delay(1000);
 
-void basic_test(){
-  Serial.println(last_moment);
+  rover.FL_motor.myspeed=MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.FL_motor.myspeed=0; 
+  rover.move_rover();
+
+  rover.FL_motor.myspeed=-MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.FL_motor.myspeed=0; 
+  rover.move_rover();
+
+  rover.FR_motor.myspeed=MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.FR_motor.myspeed=0; 
+  rover.move_rover();
+
+  rover.FR_motor.myspeed=-MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.FR_motor.myspeed=0; 
+  rover.move_rover();
+
+  rover.RL_motor.myspeed=MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.RL_motor.myspeed=0; 
+  rover.move_rover();
+
+  rover.RL_motor.myspeed=-MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.RL_motor.myspeed=0; 
+  rover.move_rover();
+
+  rover.RR_motor.myspeed=MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.RR_motor.myspeed=0; 
+  rover.move_rover();
+
+  rover.RR_motor.myspeed=-MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.RR_motor.myspeed=0;
+  rover.move_rover();
 }
 
-void test_decoders(){
+void test_decoders_basic(){ // test decoders and calibrate
+  rover.FL_motor.myspeed=350;
+  rover.FR_motor.myspeed=175;
+  rover.RL_motor.myspeed=-175;
+  rover.RR_motor.myspeed=-350;
+  rover.move_rover();
+}
+
+void test_decoders_read(){ // test decoders and calibrate
+  rover.FL_motor.myspeed=350;
+  rover.FR_motor.myspeed=175;
+  rover.RL_motor.myspeed=-175;
+  rover.RR_motor.myspeed=-350;
+  rover.move_rover();
+  delay(50);
   segment.readDecoders();
   Serial.println(segment.FL_ticks_step);
   Serial.println(segment.FR_ticks_step);
@@ -638,20 +712,111 @@ void test_decoders(){
   Serial.println(segment.millis_step);
 }
 
-void test_motors(int i){
-    rover.FL_motor.myspeed=i*64; 
-    rover.FR_motor.myspeed=i*64;        
-    rover.RL_motor.myspeed=i*127;        
-    rover.RR_motor.myspeed=i*64;
-    rover.move_rover();
-}
-
 void test_compass(){
   if (segment.readCompass()){
     Serial.print("Read successfull - ");
   }
   Serial.println(segment.current_bearing);
 }
+
+void test_segment_status(){ // test decoders and calibrate  byte segment_type; //0 in case rotation, 1 in case straight
+  current_move.segment_type=1; //0 in case rotation, 1 in case straight
+  current_move.segment_id=1;
+  current_move.target_ticks=10000;
+  current_move.target_bearing=90;
+  current_move.target_speed=100; // Can vary between +350 and -350 converted from 1 byte SPI
+
+  rover.FL_motor.myspeed=100;
+  rover.FR_motor.myspeed=100;
+  rover.RL_motor.myspeed=100;
+  rover.RR_motor.myspeed=100;
+  rover.move_rover();
+  delay(50);
+  segment.updateStatus();
+  Serial.println("millis   - FL_cum   - RF_cum    - RL_cum    - RR_cum");
+  Serial.print(segment.millis_cum);
+  Serial.print(" ");
+  Serial.print(segment.FL_ticks_cum);
+  Serial.print(" ");
+  Serial.print(segment.FR_ticks_cum);
+  Serial.print(" ");
+  Serial.print(segment.RL_ticks_cum);
+  Serial.print(" ");
+  Serial.println(segment.RR_ticks_cum);
+
+  Serial.println("ticks step - ticks cum");
+  Serial.print(segment.ticks_step);
+  Serial.print(" ");
+  Serial.println(segment.ticks_cum);
+  
+  Serial.println("speed step - speed cum");
+  Serial.print(segment.speed_step);
+  Serial.print(" ");
+  Serial.println(segment.speed_cum);
+
+  Serial.println("av bearing - gap cum - Completed");
+  Serial.print(segment.average_bearing);
+  Serial.print(" ");
+  Serial.print(segment.gap_cum);
+  Serial.print(" ");
+  Serial.print(seg_completed);
+}
+
+void test_segment_delivery_straight(){ // test decoders and calibrate  byte segment_type; //0 in case rotation, 1 in case straight
+  current_move.segment_type=1; //0 in case rotation, 1 in case straight
+  current_move.segment_id=1;
+  current_move.target_ticks=10000;
+  current_move.target_bearing=90;
+  current_move.target_speed=100; // Can vary between +350 and -350 converted from 1 byte SPI
+
+  rover.FL_motor.myspeed=100;
+  rover.FR_motor.myspeed=100;
+  rover.RL_motor.myspeed=100;
+  rover.RR_motor.myspeed=100;
+  rover.move_rover();
+  delay(50);
+
+  segment.updateStatus();
+  Serial.println("FL speed   - FR spee   - RL speed    - RR_cum    - RR_cum");
+  Serial.print(segment.millis_cum);
+  Serial.print(" ");
+
+  rover.FL_motor.myspeed=100;
+  rover.FR_motor.myspeed=100;
+  rover.RL_motor.myspeed=100;
+  rover.RR_motor.myspeed=100;
+
+  Serial.println("millis   - FL_cum   - RF_cum    - RL_cum    - RR_cum");
+  Serial.print(segment.millis_cum);
+  Serial.print(" ");
+  Serial.print(segment.FL_ticks_cum);
+  Serial.print(" ");
+  Serial.print(segment.FR_ticks_cum);
+  Serial.print(" ");
+  Serial.print(segment.RL_ticks_cum);
+  Serial.print(" ");
+  Serial.println(segment.RR_ticks_cum);
+
+  Serial.println("ticks step - ticks cum");
+  Serial.print(segment.ticks_step);
+  Serial.print(" ");
+  Serial.println(segment.ticks_cum);
+  
+  Serial.println("speed step - speed cum");
+  Serial.print(segment.speed_step);
+  Serial.print(" ");
+  Serial.println(segment.speed_cum);
+
+  Serial.println("av bearing - gap cum - Completed");
+  Serial.print(segment.average_bearing);
+  Serial.print(" ");
+  Serial.print(segment.gap_cum);
+  Serial.print(" ");
+  Serial.print(seg_completed);
+}
+
+// Need a routine to test execution of a segment  rotation
+
 
 void test_I2C_wo_segment_receiving(){
   current_move.segment_id=1; // 2 bytes

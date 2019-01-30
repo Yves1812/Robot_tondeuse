@@ -9,7 +9,6 @@ from pprint import pprint
 import os.path
 from collections import deque
 
-
 ## I2C dirvers Paths and file names depending on environment ##
 try:
     from smbus2 import SMBus # means on Pi
@@ -17,9 +16,8 @@ try:
     roverdb='/home/pi/Documents/GitHub/Robot_tondeuse/Boards/MU - web server/app.db/'
     routing_path='/home/pi/Documents/Github/Robot_tondeuse/Data/'
     command_path='/home/pi/Documents/Github/Robot_tondeuse/Data/Commands/'
-
 except ImportError:
-    print("Could not import smbus, proceeding with simulated data") #Means in windows dev environment
+    print("Warning - could not import smbus, proceeding with simulated data") #Means in windows dev environment
     ##### Use Windows path YB #####
     roverdb='C:\\Users\\Yves1812\\Documents\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
     routing_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\'
@@ -28,6 +26,8 @@ except ImportError:
 ##    roverdb='C:\\user\\U417266\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
 ##    routing_path='C:\\user\\U417266\\GitHub\\Robot_tondeuse\\Data\\'
 ##    command_path='C:\\user\\U417266\\Github\\Robot_tondeuse\\Data\\Commands\\'
+
+
 
 
 #### Orthonormal reference #########################################################
@@ -144,7 +144,7 @@ class Rover(object):
         try :
             self.TP_board=Device(TP_board_I2C_address,pi_I2C_bus)
         except :
-            print("Error initializing I2C Bus")
+            self._logger.warning("Error initializing I2C Bus, proceeding with simulated data")
             self.TP_board=None
         
     def query_rover_status(self):
@@ -188,9 +188,9 @@ class Rover(object):
             decoder_data_next_needed=[0,1,0,0,0,2,0,0,0,4,8,16,32,1] # no seg needed
             try:
                 decoder_data=self.TP_board.readList(length, active_segment_register)
-                self._logger.info("Set of bytes received from TP: "+str(decoder_data))
+                self._logger.debug("Set of bytes received from TP: "+str(decoder_data))
             except:
-                self._logger.debug("Using dummy decoder data for segment status")
+                self._logger.warning("Error reading decoder, using dummy decoder data for segment status")
                 decoder_data=decoder_data_next_needed
             self.routing.active_segment_status.segment_id=decoder_data[0]*256+decoder_data[1]
             self.routing.active_segment_status.ticks_cum=(((decoder_data[2]*256+decoder_data[3])*256+decoder_data[4])*256+decoder_data[5])
@@ -213,8 +213,16 @@ class Rover(object):
 
     def update_rover_position(self):
     # update rover position data based on latest segment status and returns current x,y coordinate as a waypoint
-        self.delta_x=self.routing.active_segment_status.ticks_cum / TICKS_PER_METER * cos(self.routing.active_segment_status.current_bearing8*6.28/255)
-        self.delta_y=self.routing.active_segment_status.ticks_cum / TICKS_PER_METER * sin(self.routing.active_segment_status.current_bearing8*6.28/255)
+        try:
+            self.delta_x=self.routing.active_segment_status.ticks_cum / TICKS_PER_METER * cos(self.routing.active_segment_status.average_bearing8*6.28/255)
+            self.delta_y=self.routing.active_segment_status.ticks_cum / TICKS_PER_METER * sin(self.routing.active_segment_status.average_bearing8*6.28/255)
+        except :
+            if (self.routing.active_segment_status.ticks_cum == 0):
+                self.delta_x=0
+                self.delta_y=0
+            else:
+                self._logger.warning("Failed to read segment from TP - no active segment to read")
+                return None                
         if self.routing.next_segment_needed :
             self.x+=self.delta_x
             self.y+=self.delta_y
@@ -381,10 +389,9 @@ class routing(object):
     def buildSegments(self):
         if (self.routing_type==1) :
             # Calculate straight line liaison, each line is composed of a rotation segment to point in the right direction and a straight segment to move
-            waypoint0=self.perimeter[0]
-## waypoint0 shall not be perimeter[0] but actual position of the rover
-            i=0
-            for waypoint in self.perimeter[1:]:
+            waypoint0=myrover.update_rover_position()
+            i=1 # start segment ids @ 1, TP interprets 0 has no initial seg loaded
+            for waypoint in self.perimeter:
                 #need to confirm  atan angle in practice to be sure
                 if (waypoint.x-waypoint0.x)==0 :
                     if ((waypoint.y-waypoint0.y)>0):
@@ -519,10 +526,10 @@ if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)    
     # create file handler which logs even debug messages
     fh = logging.FileHandler('rover.log')
-    fh.setLevel(logging.DEBUG)
+    fh.setLevel(logging.WARNING)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
-    ch.setLevel(logging.WARNING)
+    ch.setLevel(logging.ERROR)
     # create formatter and add it to the handlers
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     fh.setFormatter(formatter)
@@ -531,9 +538,10 @@ if __name__ == "__main__":
     logger.addHandler(fh)
     logger.addHandler(ch)
 
+
 ## Initialization ##
     myrover=Rover()
-    logger.warning("My rover object initialized")
+    logger.debug("My rover object initialized")
     try:
         #Try initialization every second until success
         while not myrover.initialization_completed :

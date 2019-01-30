@@ -137,7 +137,10 @@ void loop()
 //   Serial.println(last_time);
 //   if (millis()-last_moment>100){ // for testing purpose
 //     last_moment=millis();
-//     Serial.println(test());
+//     Serial.println(ticks[0]);
+//     Serial.println(ticks[1]);
+//     Serial.println(ticks[2]);
+//     Serial.println(ticks[3]);
 //   }
 }
  
