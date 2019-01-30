@@ -1220,3 +1220,150 @@
 2019-01-26 22:20:33,678 - Rover_log - WARNING - Error reading decoder, using dummy decoder data for segment status
 2019-01-26 22:20:33,730 - Rover_log - WARNING - Error reading decoder, using dummy decoder data for segment status
 2019-01-26 22:20:33,783 - Rover_log - WARNING - Error reading decoder, using dummy decoder data for segment status
+2019-01-30 17:09:15,092 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:09:45,377 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:11:50,608 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:12:42,484 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:17:33,270 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:17:59,103 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:18:49,031 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:19:25,616 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:19:25,932 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:26,042 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:26,148 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:26,248 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:26,348 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:26,448 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:26,549 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:26,649 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:26,764 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:26,865 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:26,981 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:27,082 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:27,197 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:27,297 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:27,397 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:27,497 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:27,603 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:27,714 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:27,835 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:27,950 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:28,050 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:28,151 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:28,266 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:28,367 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:28,468 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:28,572 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:28,682 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:28,782 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:28,883 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:28,999 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:29,103 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:29,214 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:29,315 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:29,416 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:29,517 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:29,618 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:29,719 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:29,820 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:29,936 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:30,036 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:30,152 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:30,252 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:30,354 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:30,468 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:30,569 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:30,684 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:30,784 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:30,887 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:31,001 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:31,103 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:31,218 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:31,340 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:31,442 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:31,545 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:31,655 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:31,756 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:31,856 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:31,972 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:32,072 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:32,187 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:32,287 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:32,388 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:32,489 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:32,590 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:32,704 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:32,822 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:32,941 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:33,042 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:33,157 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:33,257 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:33,357 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:33,458 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:33,573 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:33,673 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:33,773 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:33,889 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:33,989 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:34,103 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:34,205 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:34,305 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:34,410 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:34,510 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:34,612 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:34,714 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:34,815 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:34,917 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:35,018 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:35,121 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:35,245 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:35,346 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:35,446 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:35,546 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:35,661 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:35,761 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:35,862 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:35,977 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:36,088 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:36,193 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:36,293 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:36,409 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:36,511 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:36,619 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:36,722 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:36,826 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:36,947 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:37,048 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:37,163 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:37,263 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:37,363 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:37,464 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:37,572 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:37,679 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:37,810 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:37,911 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:38,012 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:38,119 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:38,227 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:38,348 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:38,463 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:38,573 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:19:38,680 - Rover_log - WARNING - Routing path not found
+2019-01-30 17:21:22,724 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:24:38,084 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:28:31,625 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:29:11,719 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:32:26,846 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:34:57,358 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:48:15,996 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:49:13,812 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:56:22,414 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:57:04,806 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:58:46,151 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 17:59:58,295 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 18:00:18,821 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 18:00:56,097 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 18:02:01,680 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 18:03:49,907 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 18:05:01,205 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-30 18:11:42,521 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
