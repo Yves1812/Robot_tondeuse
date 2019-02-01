@@ -19,13 +19,13 @@ try:
 except ImportError:
     print("Warning - could not import smbus, proceeding with simulated data") #Means in windows dev environment
 ##    ##### Use Windows path YB #####
-    roverdb='C:\\Users\\Yves1812\\Documents\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
-    routing_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\'
-    command_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\Commands\\'
+##    roverdb='C:\\Users\\Yves1812\\Documents\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
+##    routing_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\'
+##    command_path='C:\\Users\\Yves1812\\Documents\\Github\\Robot_tondeuse\\Data\\Commands\\'
     ##### Use Windows path #####
-##    roverdb='C:\\user\\U417266\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
-##    routing_path='C:\\user\\U417266\\GitHub\\Robot_tondeuse\\Data\\'
-##    command_path='C:\\user\\U417266\\Github\\Robot_tondeuse\\Data\\Commands\\'
+    roverdb='C:\\user\\U417266\\GitHub\\Robot_tondeuse\\Boards\\MU - web server\\app.db'
+    routing_path='C:\\user\\U417266\\GitHub\\Robot_tondeuse\\Data\\'
+    command_path='C:\\user\\U417266\\Github\\Robot_tondeuse\\Data\\Commands\\'
 
 
 
@@ -445,25 +445,50 @@ class routing(object):
 # where to place this + optimize for 1 million blocks to scan per heading on a 100m x 100m map
     def mowing_potential(self,heading) :
         # Returns # of unmown blocks in heading from myrover current position
-        #y=ax+b
-        if heading==0 or heading==180:
-            heading+=1
-        a=tan(radians(heading+90)) #heading = angle to north
-        b=(myrover.y-a*myrover.x)
+        #y=ax+b => move to ax+by+c=0 to accomodate heading North and South
+        
+        if heading==0 :
+            a=1 #heading = angle to north
+            b=0
+            c=-myrover.x
+            delta=MOWING_WIDTH/2
+        elif heading==180:
+            a=-1 #heading = angle to south
+            b=0
+            c=myrover.x
+            delta=MOWING_WIDTH/2
+        else:
+            a=tan(radians(heading+90))
+            b=-1
+            c=(myrover.y-a*myrover.x)
+            delta=MOWING_WIDTH/2/cos(radians(heading+90))
         mowing_pot=0
-        print(heading, a, b)
+        print(heading, a, b, c, delta)
+
+
+#### a>0
+####    C-x,C+y < y+z  &  C+x,C-y>y-z
+#### a<0
+####    C+x,C+y < y+z & C-x,C-y>y-z
+
         if a > 0:
             for i in range(len(mymap.blocks)):
                 for j in range(len(mymap.blocks[i])):
                     block=mymap.blocks[i][j]
-                    if (block.mowned_status==False) and ((block.center.x+mymap.block_size/2)*a+b<block.center.y-mymap.block_size/2) and ((block.center.x-mymap.block_size/2)*a+b<block.center.y+mymap.block_size/2):
+                    if (block.mowned_status==False) and ((block.center.x-mymap.block_size/2)*a+b*block.center.y+mymap.block_size/2+c+delta>0) and ((block.center.x+mymap.block_size/2)*a+b*block.center.y-mymap.block_size/2+c-delta<0):
                         mowing_pot+=1
+##                    else :
+##                        print(block.center.x,block.center.y)
+                        
         else:
             for i in range(len(mymap.blocks)):
                 for j in range(len(mymap.blocks[i])):
                     block=mymap.blocks[i][j]
-                    if (block.mowned_status==False) and ((block.center.x+mymap.block_size/2)*a+b>block.center.y+mymap.block_size/2) and ((block.center.x-mymap.block_size/2)*a+b>block.center.y-mymap.block_size/2):
+                    if (block.mowned_status==False) and ((block.center.x+mymap.block_size/2)*a+b*block.center.y+mymap.block_size/2+delta>0) and ((block.center.x-mymap.block_size/2)*a+b*block.center.y-mymap.block_size/2+c-delta<0):
                         mowing_pot+=1
+##                    else :
+##                        print(block.center.x,block.center.y)
+
         return mowing_pot
                 
     def loadRouting(self, new_routing):
@@ -521,6 +546,7 @@ class Map(object):
         self.height=self.origin.distance(self.origin.moved(self.lat_height,0))
         self.width=self.origin.distance(self.origin.moved(0,self.long_width))
         self.blocks=[[]]
+        print(self.height, self.width)
         for i in range(0,int(self.width/self.block_size)):
             self.blocks.append([])
             for j in range(0,int(self.height/self.block_size)):
@@ -599,10 +625,10 @@ if __name__ == "__main__":
 ##                print(mymap.blocks[i][j].center.x,":",mymap.blocks[i][j].center.y)
 
         print("Position du rover:", myrover.x,":", myrover.y)
-        print("mowing potential: ", myrover.routing.mowing_potential(0))
-        print("mowing potential: ", myrover.routing.mowing_potential(90))
-        print("mowing potential: ", myrover.routing.mowing_potential(180))
-        print("mowing potential: ", myrover.routing.mowing_potential(270))
+        print("mowing potential: ", myrover.routing.mowing_potential(0)) # 616
+        print("mowing potential: ", myrover.routing.mowing_potential(90)) # 0
+        print("mowing potential: ", myrover.routing.mowing_potential(180)) # 0
+        print("mowing potential: ", myrover.routing.mowing_potential(270)) # 622
                
 ## Forever loop
 ##        try:
