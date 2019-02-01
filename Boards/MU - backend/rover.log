@@ -1367,3 +1367,7 @@
 2019-01-30 18:03:49,907 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
 2019-01-30 18:05:01,205 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
 2019-01-30 18:11:42,521 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-31 21:11:00,947 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-31 21:12:52,567 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-31 21:15:54,403 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
+2019-01-31 21:16:40,457 - Rover_log - WARNING - Error initializing I2C Bus, proceeding with simulated data
