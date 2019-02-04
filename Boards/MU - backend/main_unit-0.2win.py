@@ -476,66 +476,181 @@ class routing(object):
         if a > 0 and (heading > 0 and heading < 180) :
             for i in range(max_i):
                 for j in range(len(mymap.blocks[i])):
-                    if mymap.blocks[i][j].mowned_status==False:
-                        if mymap.blocks[i][j].center.x <= myrover.x :
-                            if ((mymap.blocks[i][j].center.x-half_block)*a+b*(mymap.blocks[i][j].center.y+half_block)+c+delta>=0) and ((mymap.blocks[i][j].center.x+half_block)*a+b*(mymap.blocks[i][j].center.y-half_block)+c-delta<=0):
+                    block_center=mymap.blocks[i][j].center
+                    if ((block_center.x-half_block)*a+b*(block_center.y+half_block)+c+delta>=0) and ((block_center.x+half_block)*a+b*(block_center.y-half_block)+c-delta<=0):
+                        if mymap.blocks[i][j].mowned_status==False:
+                            if block_center.x <= myrover.x :
                                 mowing_pot+=1
 ##                            else :
-##                                print(mymap.blocks[i][j].center.x,mymap.blocks[i][j].center.y)
+##                                print(block_center.x,block_center.y)
                         
         elif a > 0 and (heading > 180 and heading < 360) :
             for i in range(len(mymap.blocks)):
                 for j in range(len(mymap.blocks[i])):
-                    if (mymap.blocks[i][j].mowned_status==False) :
-                        if mymap.blocks[i][j].center.x >= myrover.x :
-                            if ((mymap.blocks[i][j].center.x-half_block)*a+b*(mymap.blocks[i][j].center.y+half_block)+c+delta>=0) and ((mymap.blocks[i][j].center.x+half_block)*a+b*(mymap.blocks[i][j].center.y-half_block)+c-delta<=0):
+                    block_center=mymap.blocks[i][j].center
+                    if ((block_center.x-half_block)*a+b*(block_center.y+half_block)+c+delta>=0) and ((block_center.x+half_block)*a+b*(block_center.y-half_block)+c-delta<=0):
+                        if (mymap.blocks[i][j].mowned_status==False) :
+                            if block_center.x >= myrover.x :
                                 mowing_pot+=1
 ##                            else :
-##                                print(mymap.blocks[i][j].center.x,mymap.blocks[i][j].center.y)
+##                                print(block_center.x,block_center.y)
 
 
         elif a < 0 and (heading > 0 and heading < 180) :
             for i in range(len(mymap.blocks)):
                 for j in range(len(mymap.blocks[i])):
-                    if (mymap.blocks[i][j].mowned_status==False):
-                        if mymap.blocks[i][j].center.x <= myrover.x :
-                            if ((mymap.blocks[i][j].center.x+half_block)*a+b*(mymap.blocks[i][j].center.y+half_block)+c+delta>=0) and ((mymap.blocks[i][j].center.x-half_block)*a+b*(mymap.blocks[i][j].center.y-half_block)+c-delta<=0):
+                    block_center=mymap.blocks[i][j].center
+                    if ((block_center.x+half_block)*a+b*(block_center.y+half_block)+c+delta>=0) and ((block_center.x-half_block)*a+b*(block_center.y-half_block)+c-delta<=0):
+                        if (mymap.blocks[i][j].mowned_status==False):
+                            if block_center.x <= myrover.x :
                                 mowing_pot+=1
 ##                            else :
-##                                print(mymap.blocks[i][j].center.x,mymap.blocks[i][j].center.y)
+##                                print(block_center.x,block_center.y)
                         
         elif a < 0 and (heading > 180 and heading < 360) :
             for i in range(len(mymap.blocks)):
                 for j in range(len(mymap.blocks[i])):
-                    if (mymap.blocks[i][j].mowned_status==False) :
-                        if mymap.blocks[i][j].center.x >= myrover.x :
-                            if ((mymap.blocks[i][j].center.x+half_block)*a+b*(mymap.blocks[i][j].center.y+half_block)+c+delta>=0) and ((mymap.blocks[i][j].center.x-half_block)*a+b*(mymap.blocks[i][j].center.y-half_block)+c-delta<=0):
+                    block_center=mymap.blocks[i][j].center
+                    if ((block_center.x+half_block)*a+b*(block_center.y+half_block)+c+delta>=0) and ((block_center.x-half_block)*a+b*(block_center.y-half_block)+c-delta<=0):
+                        if (mymap.blocks[i][j].mowned_status==False) :
+                            if block_center.x >= myrover.x :
                                 mowing_pot+=1
 ##                            else :
-##                                print(mymap.blocks[i][j].center.x,mymap.blocks[i][j].center.y)
+##                                print(block_center.x,block_center.y)
 
 
         elif heading == 0 :
             for i in range(len(mymap.blocks)):
                 for j in range(len(mymap.blocks[i])):
-                    if (mymap.blocks[i][j].mowned_status==False) :
-                        if mymap.blocks[i][j].center.y > myrover.y :
-                            if ((mymap.blocks[i][j].center.x+half_block)+c+delta>0) and ((mymap.blocks[i][j].center.x-half_block)+c-delta<0):
+                    block_center=mymap.blocks[i][j].center
+                    if ((block_center.x+half_block)+c+delta>0) and ((block_center.x-half_block)+c-delta<0):
+                        if (mymap.blocks[i][j].mowned_status==False) :
+                            if block_center.y > myrover.y :
                                 mowing_pot+=1
 ##                            else :
-##                                print(mymap.blocks[i][j].center.x,mymap.blocks[i][j].center.y)
+##                                print(block_center.x,block_center.y)
 
         elif heading ==180 :
             for i in range(len(mymap.blocks)):
                 for j in range(len(mymap.blocks[i])):
-                    if (mymap.blocks[i][j].mowned_status==False) :
-                        if mymap.blocks[i][j].center.y < myrover.y :
-                            if (-mymap.blocks[i][j].center.x-half_block+c+delta>0) and (-mymap.blocks[i][j].center.x+half_block+c-delta<0):
+                    block_center=mymap.blocks[i][j].center
+                    if (-block_center.x-half_block+c+delta>0) and (-block_center.x+half_block+c-delta<0):
+                        if (mymap.blocks[i][j].mowned_status==False) :
+                            if block_center.y < myrover.y :
                                 mowing_pot+=1
 ##                            else :
-##                                print(mymap.blocks[i][j].center.x,mymap.blocks[i][j].center.y)
+##                                print(block_center.x,block_center.y)
 
         return mowing_pot
+
+    def fast_mowing_potential(self,heading) :
+        # Returns # of unmown blocks in heading from myrover current position
+        #y=ax+b => move to ax+by+c=0 to accomodate heading North and South
+        mowing_pot=0
+
+        i_rover=int(myrover.x/mymap.block_size)
+        j_rover=int(myrover.y/mymap.block_size)
+        
+        if heading==0 :
+            a=1 #heading = angle to north
+            b=0
+            c=-myrover.x
+            delta=HALF_MOWING_WIDTH
+        elif heading==180:
+            a=-1 #heading = angle to south
+            b=0
+            c=myrover.x
+            delta=HALF_MOWING_WIDTH
+        else:
+            a=tan(radians(heading+90))
+            b=-1
+            c=(myrover.y-a*myrover.x)
+            delta=abs(HALF_MOWING_WIDTH/cos(radians(heading+90)))
+
+#### a>0
+####    C-x,C+y < y+z  &  C+x,C-y>y-z
+#### a<0
+####    C+x,C+y < y+z & C-x,C-y>y-z
+            
+        half_block=mymap.block_size/2
+
+        if a > 0 and (heading < 180) :
+            for i in range(i_rover+1):
+#                print(heading,i)
+                ji=int((mymap.blocks[i][0].center.x*a+c)/mymap.block_size)
+                for j in range(max(0,ji-3),min(ji+3,len(mymap.blocks[i]))):
+                    block_center=mymap.blocks[i][j].center
+                    if ((block_center.x-half_block)*a+b*(block_center.y+half_block)+c+delta>=0) and ((block_center.x+half_block)*a+b*(block_center.y-half_block)+c-delta<=0):
+                        if mymap.blocks[i][j].mowned_status==False:
+                            if block_center.x <= myrover.x :
+                                mowing_pot+=1
+##                            else :
+##                                print(block_center.x,block_center.y)
+                        
+        elif a > 0 and (heading > 180) :
+            for i in range(i_rover,len(mymap.blocks)-1):
+                ji=int((mymap.blocks[i][0].center.x*a+c)/mymap.block_size)
+                for j in range(max(0,ji-3),min(ji+3,len(mymap.blocks[i]))):
+                    block_center=mymap.blocks[i][j].center
+                    if ((block_center.x-half_block)*a+b*(block_center.y+half_block)+c+delta>=0) and ((block_center.x+half_block)*a+b*(block_center.y-half_block)+c-delta<=0):
+                        if (mymap.blocks[i][j].mowned_status==False) :
+                            if block_center.x >= myrover.x :
+                                mowing_pot+=1
+##                            else :
+##                                print(block_center.x,block_center.y)
+
+
+        elif a < 0 and (heading < 180) :
+            for i in range(i_rover+1):
+#                print(heading,i)
+                ji=int((mymap.blocks[i][0].center.x*a+c)/mymap.block_size)
+                for j in range(max(0,ji-3),min(ji+3,len(mymap.blocks[i]))):
+                    block_center=mymap.blocks[i][j].center
+                    if ((block_center.x+half_block)*a+b*(block_center.y+half_block)+c+delta>=0) and ((block_center.x-half_block)*a+b*(block_center.y-half_block)+c-delta<=0):
+                        if (mymap.blocks[i][j].mowned_status==False):
+                            if block_center.x <= myrover.x :
+                                mowing_pot+=1
+##                            else :
+##                                print(block_center.x,block_center.y)
+                        
+        elif a < 0 and (heading > 180) :
+            for i in range(i_rover,len(mymap.blocks)-1):
+#                print(heading,i)
+                ji=int((mymap.blocks[i][0].center.x*a+c)/mymap.block_size)
+                for j in range(max(0,ji-3),min(ji+3,len(mymap.blocks[i]))):
+                    block_center=mymap.blocks[i][j].center
+                    if ((block_center.x+half_block)*a+b*(block_center.y+half_block)+c+delta>=0) and ((block_center.x-half_block)*a+b*(block_center.y-half_block)+c-delta<=0):
+                        if (mymap.blocks[i][j].mowned_status==False) :
+                            if block_center.x >= myrover.x :
+                                mowing_pot+=1
+##                            else :
+##                                print(block_center.x,block_center.y)
+
+
+        elif heading == 0 :
+            for i in range(len(mymap.blocks)):
+                for j in range(len(mymap.blocks[i])):
+                    block_center=mymap.blocks[i][j].center
+                    if ((block_center.x+half_block)+c+delta>0) and ((block_center.x-half_block)+c-delta<0):
+                        if (mymap.blocks[i][j].mowned_status==False) :
+                            if block_center.y > myrover.y :
+                                mowing_pot+=1
+##                            else :
+##                                print(block_center.x,block_center.y)
+
+        elif heading ==180 :
+            for i in range(len(mymap.blocks)):
+                for j in range(len(mymap.blocks[i])):
+                    block_center=mymap.blocks[i][j].center
+                    if (-block_center.x-half_block+c+delta>0) and (-block_center.x+half_block+c-delta<0):
+                        if (mymap.blocks[i][j].mowned_status==False) :
+                            if block_center.y < myrover.y :
+                                mowing_pot+=1
+##                            else :
+##                                print(block_center.x,block_center.y)
+
+        return mowing_pot
+
                 
     def loadRouting(self, new_routing):
         try:
@@ -672,8 +787,8 @@ if __name__ == "__main__":
 
         print("Position du rover:", myrover.x,":", myrover.y)
         print(datetime.datetime.now())
-        for i in range(360):
-            myrover.routing.mowing_potential(i) # 616/622
+        for i in range(1,359):
+            myrover.routing.fast_mowing_potential(i) # 616/622
 
         print(datetime.datetime.now())
                
