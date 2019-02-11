@@ -40,7 +40,7 @@ volatile byte ticks_init[5]={127,127,127,127,0};
 volatile byte ticks_latched[5]={127,127,127,127,0};
 volatile unsigned long now, last_time;
 volatile byte time_delta;
-//unsigned long last_moment=0; // for testing
+unsigned long last_moment=0; // for testing
 
 void requestEvent();
 
@@ -94,7 +94,7 @@ void setup()
 {
   Serial.begin(9600);
   // Set SPI bus
-  pinMode(MISO, OUTPUT);     // have to send on master in, *slave out*
+//  pinMode(MISO, OUTPUT);     // have to send on master in, *slave out*
   SPCR |= _BV(SPE);   // turn on SPI in slave mode
   SPCR |= _BV(SPIE);   // turn on interrupts
   
@@ -135,13 +135,16 @@ void setup()
 void loop()
 {
 //   Serial.println(last_time);
-//   if (millis()-last_moment>100){ // for testing purpose
-//     last_moment=millis();
-//     Serial.println(ticks[0]);
-//     Serial.println(ticks[1]);
-//     Serial.println(ticks[2]);
-//     Serial.println(ticks[3]);
-//   }
+   if (millis()-last_moment>100){ // for testing purpose
+     last_moment=millis();
+     Serial.println(ticks[0]);
+     Serial.println(ticks[1]); //RL
+     Serial.println(ticks[2]);
+     Serial.println(ticks[3]); //FR
+     Serial.println();
+// FL & RR not seen
+     
+   }
 }
  
 // Interrupt service routines
