@@ -27,21 +27,21 @@
 
 //Physical pins of motors
 // Need to check after connection that pins are allocated to relevant motor and rotation directions are consistent
-#define PinForwardFL 24
-#define PinBackwardFL 28
-#define PinSpeedFL 2
+#define PinForwardFL 22
+#define PinBackwardFL 24
+#define PinSpeedFL 3
 
-#define PinForwardFR 30
-#define PinBackwardFR 32
-#define PinSpeedFR 3
+#define PinForwardFR 25
+#define PinBackwardFR 23
+#define PinSpeedFR 2
 
-#define PinForwardRL 40
-#define PinBackwardRL 38
-#define PinSpeedRL 4
+#define PinForwardRL 26
+#define PinBackwardRL 28
+#define PinSpeedRL 5
 
-#define PinForwardRR 36
-#define PinBackwardRR 34
-#define PinSpeedRR 5
+#define PinForwardRR 29
+#define PinBackwardRR 27
+#define PinSpeedRR 4
 
 // Compass pin
 #define ANGLE_8  18           // Register to read 8 bits angle from compass
@@ -52,8 +52,8 @@
 #define SS_DECODER_BOARD 22
 
 // Constant
-#define MAX_SPEED 350 // ticks per second
-#define MAX_ROTATION 35 // bit per second
+#define MAX_SPEED 350.0 // ticks per second
+#define MAX_ROTATION 35.0 // bit per second
 
 // I2C address and registers
 // SCL 21
@@ -353,7 +353,7 @@ void Motor::setSpeed(){
   if (myspeed >0){
     digitalWrite(pinforward, HIGH);
     digitalWrite(pinbackward, LOW);
-    analogWrite(pinspeed, int(myspeed*255/MAX_SPEED));
+    analogWrite(pinspeed, int(myspeed/MAX_SPEED*255));
   }
   if (myspeed == 0){
     digitalWrite(pinforward, LOW);
@@ -362,7 +362,7 @@ void Motor::setSpeed(){
   if (myspeed <0){
     digitalWrite(pinforward, LOW);
     digitalWrite(pinbackward, HIGH);
-    analogWrite(pinspeed, int(-myspeed*255/MAX_SPEED));
+    analogWrite(pinspeed, int(-myspeed/MAX_SPEED*255));
   }
 }
 
@@ -619,11 +619,11 @@ int i=0;
 void loop(){
    if (millis()-last_moment>200){ // for testing purpose
      last_moment=millis();
-//     test_motors(0);
+     test_motors(10);
 //     driveRover();
 //     test_I2C_w_segment_receiving();
 //     test_I2C_w_segment_receiving();
-      test_compass();
+//      test_compass();
 //     test_decoders_basic();
 //     test_decoders();
 
@@ -633,60 +633,76 @@ void loop(){
 
 // ******************* Test routines - commented out in production version **************************** // 
 void test_motors(int i){
-  rover.FL_motor.myspeed=i; 
-  rover.FR_motor.myspeed=i;        
-  rover.RL_motor.myspeed=i;        
-  rover.RR_motor.myspeed=i;
-  rover.move_rover();
-  delay(1000);
-
-  rover.FL_motor.myspeed=MAX_SPEED; 
-  rover.move_rover();
-  delay(1000);
   rover.FL_motor.myspeed=0; 
-  rover.move_rover();
-
-  rover.FL_motor.myspeed=-MAX_SPEED; 
-  rover.move_rover();
-  delay(1000);
-  rover.FL_motor.myspeed=0; 
-  rover.move_rover();
-
-  rover.FR_motor.myspeed=MAX_SPEED; 
-  rover.move_rover();
-  delay(1000);
-  rover.FR_motor.myspeed=0; 
-  rover.move_rover();
-
-  rover.FR_motor.myspeed=-MAX_SPEED; 
-  rover.move_rover();
-  delay(1000);
-  rover.FR_motor.myspeed=0; 
-  rover.move_rover();
-
-  rover.RL_motor.myspeed=MAX_SPEED; 
-  rover.move_rover();
-  delay(1000);
-  rover.RL_motor.myspeed=0; 
-  rover.move_rover();
-
-  rover.RL_motor.myspeed=-MAX_SPEED; 
-  rover.move_rover();
-  delay(1000);
-  rover.RL_motor.myspeed=0; 
-  rover.move_rover();
-
-  rover.RR_motor.myspeed=MAX_SPEED; 
-  rover.move_rover();
-  delay(1000);
-  rover.RR_motor.myspeed=0; 
-  rover.move_rover();
-
-  rover.RR_motor.myspeed=-MAX_SPEED; 
-  rover.move_rover();
-  delay(1000);
+  rover.FR_motor.myspeed=0;        
+  rover.RL_motor.myspeed=0;        
   rover.RR_motor.myspeed=0;
   rover.move_rover();
+  Serial.println("motor running");
+//  delay(1000);
+//
+//  rover.FL_motor.stop();
+//  rover.FR_motor.stop();
+//  rover.RL_motor.stop();
+//  rover.RR_motor.stop();
+////  rover.move_rover();
+//  Serial.println("motor stopped");
+//  delay(5000);
+//
+//
+//  rover.FL_motor.myspeed=MAX_SPEED; 
+//  rover.move_rover();
+//  delay(1000);
+//  rover.FL_motor.myspeed=0; 
+//  rover.move_rover();
+//
+//  rover.FL_motor.myspeed=-MAX_SPEED; 
+//  rover.move_rover();
+//  delay(1000);
+//  rover.FL_motor.myspeed=0; 
+//  rover.move_rover();
+//
+//  delay(2000);
+//
+//  rover.FR_motor.myspeed=MAX_SPEED; 
+//  rover.move_rover();
+//  delay(1000);
+//  rover.FR_motor.myspeed=0; 
+//  rover.move_rover();
+//
+//  rover.FR_motor.myspeed=-MAX_SPEED; 
+//  rover.move_rover();
+//  delay(1000);
+//  rover.FR_motor.myspeed=0; 
+//  rover.move_rover();
+//
+//  delay(2000);
+//
+//  rover.RL_motor.myspeed=MAX_SPEED; 
+//  rover.move_rover();
+//  delay(1000);
+//  rover.RL_motor.myspeed=0; 
+//  rover.move_rover();
+//
+//  rover.RL_motor.myspeed=-MAX_SPEED; 
+//  rover.move_rover();
+//  delay(1000);
+//  rover.RL_motor.myspeed=0; 
+//  rover.move_rover();
+//
+//  delay(2000);
+//
+//  rover.RR_motor.myspeed=MAX_SPEED; 
+//  rover.move_rover();
+//  delay(1000);
+//  rover.RR_motor.myspeed=0; 
+//  rover.move_rover();
+//
+//  rover.RR_motor.myspeed=-MAX_SPEED; 
+//  rover.move_rover();
+//  delay(1000);
+//  rover.RR_motor.myspeed=0;
+//  rover.move_rover();
 }
 
 void test_decoders_basic(){ // test decoders and calibrate
