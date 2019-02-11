@@ -23,16 +23,27 @@
 // Quadrature encoders pins
 // Front Left encoder
 #define FrontLeftEncoderPulse 2
-#define FrontLeftEncoderDir 26 //PORTA 00000100
-// Front Right encoder
+#define FrontLeftEncoderDir 26 //PORTA 00000100 si 28 PORTA 6=00000110 
+#define FrontLeftPort PINA
+#define FrontLeftMask B00000100
+
+// Front Right encoder - marche mais donne RL
 #define FrontRightEncoderPulse 3
-#define FrontRightEncoderDir 28 //PORTA 00000110
+#define FrontRightEncoderDir 28 //PORTA 00000110 si 30 PORTC 7=00000111
+#define FrontRightPort PINA
+#define FrontRightMask B00000110
+
 // Rear Left encoder
 #define RearLeftEncoderPulse 18
-#define RearLeftEncoderDir 30 //PORTC 00000111
-// Rear Right encoder
+#define RearLeftEncoderDir 30 //PORTC 00000111 si 32 PORTC 5=00000101
+#define RearLeftPort PINC
+#define RearLeftMask B00000111
+
+// Rear Right encoder - marche mais donne FR
 #define RearRightEncoderPulse 19
-#define RearRightEncoderDir 32 //PORTC 00000101
+#define RearRightEncoderDir 32 //PORTC 00000101 si 34 PORTC 3=00000011
+#define RearRightPort PINC
+#define RearRightMask B00000101
  
 // global variables
 volatile byte ticks[5]={127,127,127,127,0};
@@ -41,6 +52,7 @@ volatile byte ticks_latched[5]={127,127,127,127,0};
 volatile unsigned long now, last_time;
 volatile byte time_delta;
 unsigned long last_moment=0; // for testing
+volatile int myinterrupts[4]=[0,0,0,0];
 
 void requestEvent();
 
@@ -48,7 +60,8 @@ void requestEvent();
 // and adjust counter + if A leads B or - if reverse
 void HandleFrontLeftPulse()
 {
-  if ( PINA & B00000100) {
+  myinterrupts[0]++;
+  if (FrontLeftPort & FrontLeftMask) {
     ticks[0] += 1;
   }
   else
@@ -59,7 +72,8 @@ void HandleFrontLeftPulse()
  
 void HandleFrontRightPulse()
 {
-  if (PINA & B00000110) {
+  myinterrupts[1]++;
+  if (FrontRightPort & FrontRightMask) {
     ticks[1] += 1;
   }
   else
@@ -70,7 +84,9 @@ void HandleFrontRightPulse()
  
 void HandleRearLeftPulse()
 {
-  if (PINC & B00000111) {
+  myinterrupts[2]++;
+
+  if (RearLeftPort & RearLeftMask) {
     ticks[2] += 1;
   }
   else
@@ -81,7 +97,9 @@ void HandleRearLeftPulse()
  
 void HandleRearRightPulse()
 {
-  if ( PINC & B00000101) {
+  myinterrupts[3]++;
+
+  if (RearRightPort & RearRightMask) {
     ticks[3] += 1;
   }
   else
@@ -135,8 +153,15 @@ void setup()
 void loop()
 {
 //   Serial.println(last_time);
-   if (millis()-last_moment>100){ // for testing purpose
+   if (millis()-last_moment>1000){ // for testing purpose
      last_moment=millis();
+
+     Serial.println(myinterrupts[0]);
+     Serial.println(myinterrupts[1]); //RL
+     Serial.println(myinterrupts[2]);
+     Serial.println(myinterrupts[3]); //FR
+     Serial.println();
+     
      Serial.println(ticks[0]);
      Serial.println(ticks[1]); //RL
      Serial.println(ticks[2]);
