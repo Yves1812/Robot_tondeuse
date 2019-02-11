@@ -19,31 +19,32 @@
 
 // 20 = SDA
 // 21 = SCL
- 
+
+
 // Quadrature encoders pins
+// Rear Right encoder
+#define RearRightEncoderPulse 2
+#define RearRightEncoderDir 26 //PORTA 00000100 si 28 PORTA 6=00000110 
+#define RearRightPort PINA
+#define RearRightMask B00000100
+
+// Rear Left encoder - marche mais donne RL
+#define RearLeftEncoderPulse 3
+#define RearLeftEncoderDir 28 //PORTA 00000110 si 30 PORTC 7=00000111
+#define RearLeftPort PINA
+#define RearLeftMask B00000110
+
 // Front Left encoder
-#define FrontLeftEncoderPulse 2
-#define FrontLeftEncoderDir 26 //PORTA 00000100 si 28 PORTA 6=00000110 
-#define FrontLeftPort PINA
-#define FrontLeftMask B00000100
+#define FrontLeftEncoderPulse 18
+#define FrontLeftEncoderDir 30 //PORTC 00000111 si 32 PORTC 5=00000101
+#define FrontLeftPort PINC
+#define FrontLeftMask B00000111
 
-// Front Right encoder - marche mais donne RL
-#define FrontRightEncoderPulse 3
-#define FrontRightEncoderDir 28 //PORTA 00000110 si 30 PORTC 7=00000111
-#define FrontRightPort PINA
-#define FrontRightMask B00000110
-
-// Rear Left encoder
-#define RearLeftEncoderPulse 18
-#define RearLeftEncoderDir 30 //PORTC 00000111 si 32 PORTC 5=00000101
-#define RearLeftPort PINC
-#define RearLeftMask B00000111
-
-// Rear Right encoder - marche mais donne FR
-#define RearRightEncoderPulse 19
-#define RearRightEncoderDir 32 //PORTC 00000101 si 34 PORTC 3=00000011
-#define RearRightPort PINC
-#define RearRightMask B00000101
+// Front Right encoder - marche mais donne FR
+#define FrontRightEncoderPulse 19
+#define FrontRightEncoderDir 32 //PORTC 00000101 si 34 PORTC 3=00000011
+#define FrontRightPort PINC
+#define FrontRightMask B00000101
  
 // global variables
 volatile byte ticks[5]={127,127,127,127,0};
@@ -52,7 +53,7 @@ volatile byte ticks_latched[5]={127,127,127,127,0};
 volatile unsigned long now, last_time;
 volatile byte time_delta;
 unsigned long last_moment=0; // for testing
-volatile int myinterrupts[4]=[0,0,0,0];
+volatile int myinterrupts[4]={0,0,0,0};
 
 void requestEvent();
 
@@ -153,18 +154,12 @@ void setup()
 void loop()
 {
 //   Serial.println(last_time);
-   if (millis()-last_moment>1000){ // for testing purpose
+   if (millis()-last_moment>100){ // for testing purpose
      last_moment=millis();
-
-     Serial.println(myinterrupts[0]);
-     Serial.println(myinterrupts[1]); //RL
-     Serial.println(myinterrupts[2]);
-     Serial.println(myinterrupts[3]); //FR
-     Serial.println();
-     
-     Serial.println(ticks[0]);
+     Serial.println(last_moment);
+     Serial.println(ticks[0]); //RR
      Serial.println(ticks[1]); //RL
-     Serial.println(ticks[2]);
+     Serial.println(ticks[2]); //FL
      Serial.println(ticks[3]); //FR
      Serial.println();
 // FL & RR not seen
