@@ -294,13 +294,17 @@ bool SegmentStatus::readDecoders(){
   // enable Slave Select
   digitalWrite(SS_DECODER_BOARD, LOW);
   // Collect the 5 bytes
-  SPI.transfer('s'); // 's' like Start to trigger matching on slave
-  delayMicroseconds (10); // wait for the latching to complete
+  SPI.transfer(255); // 's' like Start to trigger matching on slave
+  delayMicroseconds (500); // wait for the latching to complete
   //read the 5 bytes expected - decoders are set to 127 for 0 ticks
   FL_ticks_step=((int) SPI.transfer(1))-127;
+  delayMicroseconds (5); // wait for the latching to complete
   FR_ticks_step=((int) SPI.transfer(2))-127;
+  delayMicroseconds (5); // wait for the latching to complete
   RL_ticks_step=((int) SPI.transfer(3))-127;
+  delayMicroseconds (5); // wait for the latching to complete
   RR_ticks_step=((int) SPI.transfer(4))-127;
+  delayMicroseconds (5); // wait for the latching to complete
   millis_step=(int) SPI.transfer(0);
   // disable Slave Select
   digitalWrite(SS, HIGH);
@@ -620,11 +624,13 @@ void loop(){
    if (millis()-last_moment>200){ // for testing purpose
      last_moment=millis();
      test_motors(10);
+     delay(200);
+
 //     driveRover();
 //     test_I2C_w_segment_receiving();
 //     test_I2C_w_segment_receiving();
 //      test_compass();
-//     test_decoders_basic();
+     test_decoders_read();
 //     test_decoders();
 
    }
@@ -714,12 +720,12 @@ void test_decoders_basic(){ // test decoders and calibrate
 }
 
 void test_decoders_read(){ // test decoders and calibrate
-  rover.FL_motor.myspeed=350;
-  rover.FR_motor.myspeed=175;
-  rover.RL_motor.myspeed=-175;
-  rover.RR_motor.myspeed=-350;
-  rover.move_rover();
-  delay(50);
+//  rover.FL_motor.myspeed=100;
+//  rover.FR_motor.myspeed=0;
+//  rover.RL_motor.myspeed=0;
+//  rover.RR_motor.myspeed=0;
+//  rover.move_rover();
+//  delay(50);
   segment.readDecoders();
   Serial.println(segment.FL_ticks_step);
   Serial.println(segment.FR_ticks_step);
