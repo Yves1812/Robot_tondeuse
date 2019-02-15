@@ -49,7 +49,7 @@
 // serial 1 Tx = 18
 
 // SPI Slave Select pins
-#define SS_DECODER_BOARD 22
+#define SS_DECODER_BOARD 30
 
 // Constant
 #define MAX_SPEED 350.0 // ticks per second
@@ -392,57 +392,6 @@ void Rover::move_rover(void){
     RR_motor.setSpeed();
 }
 
-void setup() {
-// Set Serial communication for debugging purpose
-  delay(100);
-  Serial.begin(9600);  
-  Serial1.begin(9600, SERIAL_8N2);
-  Serial.println("Booting up ...");
-  Serial.println("Serial bus initiated");
-
-  segment.begin();
-  rover.begin();
-  current_move.segment_id=0; //0 means no initial order has been received
-
-// I2C bus set-up
-  Wire.begin(SLAVE_ADDRESS);               // join MU i2c bus as a slave with address 0x16 (0-7 reserved) 
-  Wire.onRequest(requestEvent);   // register event on MU bus
-  Wire.onReceive(receiveEvent);
-  Serial.println("I2C Main Unit bus initiated as a slave");
-  I2Cregister=0;
-  
-// SPI bus initiated
-  digitalWrite(SS_DECODER_BOARD, HIGH);  // ensure SS for DECODER_BOARD stays high for now
-  // Put SCK, MOSI, SS pins into output mode
-  // also put SCK, MOSI into LOW state, and SS into HIGH state.
-  // Then put SPI hardware into Master mode and turn SPI on
-  SPI.begin ();
-  // Slow down the master a bit
-  SPI.setClockDivider(SPI_CLOCK_DIV8);
-
-// To be commented out for test purpose
-//  while (not next_seg_available) {
-//    delay(100);
-//  } // Wait for first order_segment to be sent
-//  current_move.segment_type=next_move.segment_type; //0 in case rotation, 1 in case straight
-//  current_move.segment_id=next_move.segment_id;
-//  current_move.target_ticks=next_move.target_ticks;
-//  current_move.target_bearing=next_move.target_bearing;
-//  current_move.target_speed=next_move.target_speed;
-//  next_seg_available=false;
-//  seg_completed=false;
-
-// to be used for test only
-//  current_move.segment_type=1; //0 in case rotation, 1 in case straight
-//  current_move.segment_id=1;
-//  current_move.target_ticks=10000;
-//  current_move.target_bearing=90;
-//  current_move.target_speed=100; // Can vary between +350 and -350 converted from 1 byte SPI
-
-  segment.begin(); // requires compass to be connected (initial compass read)
-}
-
-
 // Interrupt service routines
 
 void receiveEvent(int howMany) {
@@ -617,6 +566,58 @@ void driveRover(){
   }
 }
 
+void setup() {
+// Set Serial communication for debugging purpose
+  delay(100);
+  Serial.begin(9600);  
+  Serial1.begin(9600, SERIAL_8N2);
+  Serial.println("Booting up ...");
+  Serial.println("Serial bus initiated");
+
+  segment.begin();
+  rover.begin();
+  current_move.segment_id=0; //0 means no initial order has been received
+
+// I2C bus set-up
+  Wire.begin(SLAVE_ADDRESS);               // join MU i2c bus as a slave with address 0x16 (0-7 reserved) 
+  Wire.onRequest(requestEvent);   // register event on MU bus
+  Wire.onReceive(receiveEvent);
+  Serial.println("I2C Main Unit bus initiated as a slave");
+  I2Cregister=0;
+  
+// SPI bus initiated
+  digitalWrite(SS_DECODER_BOARD, HIGH);  // ensure SS for DECODER_BOARD stays high for now
+  // Put SCK, MOSI, SS pins into output mode
+  // also put SCK, MOSI into LOW state, and SS into HIGH state.
+  // Then put SPI hardware into Master mode and turn SPI on
+  SPI.begin ();
+  // Slow down the master a bit
+  SPI.setClockDivider(SPI_CLOCK_DIV8);
+
+// To be commented out for test purpose
+//  while (not next_seg_available) {
+//    delay(100);
+//  } // Wait for first order_segment to be sent
+//  current_move.segment_type=next_move.segment_type; //0 in case rotation, 1 in case straight
+//  current_move.segment_id=next_move.segment_id;
+//  current_move.target_ticks=next_move.target_ticks;
+//  current_move.target_bearing=next_move.target_bearing;
+//  current_move.target_speed=next_move.target_speed;
+//  next_seg_available=false;
+//  seg_completed=false;
+
+// to be used for test only
+//  current_move.segment_type=1; //0 in case rotation, 1 in case straight
+//  current_move.segment_id=1;
+//  current_move.target_ticks=10000;
+//  current_move.target_bearing=90;
+//  current_move.target_speed=100; // Can vary between +350 and -350 converted from 1 byte SPI
+
+  segment.begin(); // requires compass to be connected (initial compass read)
+   last_moment=millis();
+}
+
+
 int i=0;
 
 // Loop routine
@@ -625,14 +626,11 @@ void loop(){
      last_moment=millis();
      test_motors(10);
      delay(200);
-
-//     driveRover();
-//     test_I2C_w_segment_receiving();
-//     test_I2C_w_segment_receiving();
-//      test_compass();
      test_decoders_read();
-//     test_decoders();
 
+//     test_I2C_w_segment_receiving();
+//     test_I2C_w_segment_receiving();
+//     test_compass();
    }
 }
 
@@ -644,88 +642,12 @@ void test_motors(int i){
   rover.RL_motor.myspeed=0;        
   rover.RR_motor.myspeed=0;
   rover.move_rover();
-  Serial.println("motor running");
+//  Serial.println("motor running");
 //  delay(1000);
-//
-//  rover.FL_motor.stop();
-//  rover.FR_motor.stop();
-//  rover.RL_motor.stop();
-//  rover.RR_motor.stop();
-////  rover.move_rover();
-//  Serial.println("motor stopped");
-//  delay(5000);
-//
-//
-//  rover.FL_motor.myspeed=MAX_SPEED; 
-//  rover.move_rover();
-//  delay(1000);
-//  rover.FL_motor.myspeed=0; 
-//  rover.move_rover();
-//
-//  rover.FL_motor.myspeed=-MAX_SPEED; 
-//  rover.move_rover();
-//  delay(1000);
-//  rover.FL_motor.myspeed=0; 
-//  rover.move_rover();
-//
-//  delay(2000);
-//
-//  rover.FR_motor.myspeed=MAX_SPEED; 
-//  rover.move_rover();
-//  delay(1000);
-//  rover.FR_motor.myspeed=0; 
-//  rover.move_rover();
-//
-//  rover.FR_motor.myspeed=-MAX_SPEED; 
-//  rover.move_rover();
-//  delay(1000);
-//  rover.FR_motor.myspeed=0; 
-//  rover.move_rover();
-//
-//  delay(2000);
-//
-//  rover.RL_motor.myspeed=MAX_SPEED; 
-//  rover.move_rover();
-//  delay(1000);
-//  rover.RL_motor.myspeed=0; 
-//  rover.move_rover();
-//
-//  rover.RL_motor.myspeed=-MAX_SPEED; 
-//  rover.move_rover();
-//  delay(1000);
-//  rover.RL_motor.myspeed=0; 
-//  rover.move_rover();
-//
-//  delay(2000);
-//
-//  rover.RR_motor.myspeed=MAX_SPEED; 
-//  rover.move_rover();
-//  delay(1000);
-//  rover.RR_motor.myspeed=0; 
-//  rover.move_rover();
-//
-//  rover.RR_motor.myspeed=-MAX_SPEED; 
-//  rover.move_rover();
-//  delay(1000);
-//  rover.RR_motor.myspeed=0;
-//  rover.move_rover();
 }
 
-void test_decoders_basic(){ // test decoders and calibrate
-  rover.FL_motor.myspeed=350;
-  rover.FR_motor.myspeed=175;
-  rover.RL_motor.myspeed=-175;
-  rover.RR_motor.myspeed=-350;
-  rover.move_rover();
-}
 
 void test_decoders_read(){ // test decoders and calibrate
-//  rover.FL_motor.myspeed=100;
-//  rover.FR_motor.myspeed=0;
-//  rover.RL_motor.myspeed=0;
-//  rover.RR_motor.myspeed=0;
-//  rover.move_rover();
-//  delay(50);
   segment.readDecoders();
   Serial.println(segment.FL_ticks_step);
   Serial.println(segment.FR_ticks_step);
@@ -737,8 +659,8 @@ void test_decoders_read(){ // test decoders and calibrate
 void test_compass(){
   if (segment.readCompass()){
     Serial.print("Read successfull - ");
+    Serial.println(segment.current_bearing);
   }
-  Serial.println(segment.current_bearing);
 }
 
 void test_segment_status(){ // test decoders and calibrate  byte segment_type; //0 in case rotation, 1 in case straight
@@ -869,3 +791,67 @@ void test_I2C_w_segment_receiving(){
   rover.RR_motor.power=10; //1 byte
 }
 
+void test_motors2(void){
+  rover.FL_motor.stop();
+  rover.FR_motor.stop();
+  rover.RL_motor.stop();
+  rover.RR_motor.stop();
+  rover.move_rover();
+  Serial.println("motor stopped");
+  delay(5000);
+
+
+  rover.FL_motor.myspeed=MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.FL_motor.myspeed=0; 
+  rover.move_rover();
+
+  rover.FL_motor.myspeed=-MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.FL_motor.myspeed=0; 
+  rover.move_rover();
+
+  delay(2000);
+
+  rover.FR_motor.myspeed=MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.FR_motor.myspeed=0; 
+  rover.move_rover();
+
+  rover.FR_motor.myspeed=-MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.FR_motor.myspeed=0; 
+  rover.move_rover();
+
+  delay(2000);
+
+  rover.RL_motor.myspeed=MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.RL_motor.myspeed=0; 
+  rover.move_rover();
+
+  rover.RL_motor.myspeed=-MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.RL_motor.myspeed=0; 
+  rover.move_rover();
+
+  delay(2000);
+
+  rover.RR_motor.myspeed=MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.RR_motor.myspeed=0; 
+  rover.move_rover();
+
+  rover.RR_motor.myspeed=-MAX_SPEED; 
+  rover.move_rover();
+  delay(1000);
+  rover.RR_motor.myspeed=0;
+  rover.move_rover();
+}
