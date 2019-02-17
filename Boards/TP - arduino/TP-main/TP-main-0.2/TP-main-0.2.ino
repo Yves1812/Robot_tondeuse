@@ -199,8 +199,8 @@ boolean SegmentStatus::updateStatus(){
     if (current_move.segment_type==1){ // this is a straight segment
       ticks_step=min(min(FL_ticks_step, RL_ticks_step),min(FR_ticks_step, RR_ticks_step));
       ticks_cum+=ticks_step;
-      speed_step=ticks_step*1000/millis_step;
-      speed_cum=ticks_cum*1000/millis_cum;
+      speed_step=((float)ticks_step/(float)millis_step)*1000;
+      speed_cum=((float)ticks_cum/(float)millis_cum)*1000;
       average_bearing=((current_bearing+last_bearing)*ticks_step/2+(ticks_cum-ticks_step)*average_bearing)/ticks_cum; //average bearing since start of segment
       gap_cum+=min(FL_ticks_step, RL_ticks_step)-min(FR_ticks_step, RR_ticks_step);
     }
@@ -622,13 +622,14 @@ int i=0;
 
 // Loop routine
 void loop(){
-   if (millis()-last_moment>150){ // Sampling rate should not go bellow otherwise DB will overflow at full speed
+   if (millis()-last_moment>150){ // Sampling rate should not go slower than 150ms otherwise DB will overflow at full speed
      last_moment=millis();
      test_motors(10);
-     test_decoders_read();
+//     test_decoders_read();
 //     test_I2C_w_segment_receiving();
 //     test_I2C_w_segment_receiving();
 //     test_compass();
+//     test_segment_status();
    }
 }
 
@@ -701,7 +702,10 @@ void test_segment_status(){ // test decoders and calibrate  byte segment_type; /
   Serial.print(" ");
   Serial.print(segment.gap_cum);
   Serial.print(" ");
-  Serial.print(seg_completed);
+  Serial.println(seg_completed);
+  Serial.println();
+  Serial.println();
+
 }
 
 void test_segment_delivery_straight(){ // test decoders and calibrate  byte segment_type; //0 in case rotation, 1 in case straight
