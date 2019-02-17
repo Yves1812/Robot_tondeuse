@@ -622,12 +622,10 @@ int i=0;
 
 // Loop routine
 void loop(){
-   if (millis()-last_moment>200){ // for testing purpose
+   if (millis()-last_moment>150){ // Sampling rate should not go bellow otherwise DB will overflow at full speed
      last_moment=millis();
      test_motors(10);
-     delay(200);
      test_decoders_read();
-
 //     test_I2C_w_segment_receiving();
 //     test_I2C_w_segment_receiving();
 //     test_compass();
