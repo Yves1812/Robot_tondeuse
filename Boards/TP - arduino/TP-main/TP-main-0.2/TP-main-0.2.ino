@@ -199,16 +199,18 @@ boolean SegmentStatus::updateStatus(){
     if (current_move.segment_type==1){ // this is a straight segment
       ticks_step=min(min(FL_ticks_step, RL_ticks_step),min(FR_ticks_step, RR_ticks_step));
       ticks_cum+=ticks_step;
-      speed_step=((float)ticks_step/(float)millis_step)*1000;
-      speed_cum=((float)ticks_cum/(float)millis_cum)*1000;
+      speed_step=((float)ticks_step / (float)millis_step)*1000;
+      speed_cum=((float)ticks_cum / (float)millis_cum)*1000;
       average_bearing=((current_bearing+last_bearing)*ticks_step/2+(ticks_cum-ticks_step)*average_bearing)/ticks_cum; //average bearing since start of segment
       gap_cum+=min(FL_ticks_step, RL_ticks_step)-min(FR_ticks_step, RR_ticks_step);
     }
+
     if (current_move.segment_type==1){
       if (current_move.target_ticks-segment.ticks_cum<10){
         seg_completed=true;
       }
     }
+
     if (current_move.segment_type==0){
       if (abs(current_bearing-current_move.target_bearing)<2){
         seg_completed=true;
@@ -663,49 +665,56 @@ void test_compass(){
 }
 
 void test_segment_status(){ // test decoders and calibrate  byte segment_type; //0 in case rotation, 1 in case straight
-  current_move.segment_type=1; //0 in case rotation, 1 in case straight
-  current_move.segment_id=1;
-  current_move.target_ticks=10000;
-  current_move.target_bearing=90;
-  current_move.target_speed=100; // Can vary between +350 and -350 converted from 1 byte SPI
+  if (current_move.target_ticks !=10000) {
+      current_move.segment_type=1; //0 in case rotation, 1 in case straight
+      current_move.segment_id=1;
+      current_move.target_ticks=10000;
+      current_move.target_bearing=90;
+      current_move.target_speed=100; // Can vary between +350 and -350 converted from 1 byte SPI
+      seg_completed=false;
+  }
 
-  rover.FL_motor.myspeed=100;
-  rover.FR_motor.myspeed=100;
-  rover.RL_motor.myspeed=100;
-  rover.RR_motor.myspeed=100;
-  rover.move_rover();
-  delay(50);
-  segment.updateStatus();
-  Serial.println("millis   - FL_cum   - RF_cum    - RL_cum    - RR_cum");
-  Serial.print(segment.millis_cum);
-  Serial.print(" ");
-  Serial.print(segment.FL_ticks_cum);
-  Serial.print(" ");
-  Serial.print(segment.FR_ticks_cum);
-  Serial.print(" ");
-  Serial.print(segment.RL_ticks_cum);
-  Serial.print(" ");
-  Serial.println(segment.RR_ticks_cum);
+  if (rover.FL_motor.myspeed != 100) {
+      rover.FL_motor.myspeed=100;
+      rover.FR_motor.myspeed=100;
+      rover.RL_motor.myspeed=100;
+      rover.RR_motor.myspeed=100;
+      rover.move_rover();
+      delay(50);
+  }
 
-  Serial.println("ticks step - ticks cum");
-  Serial.print(segment.ticks_step);
-  Serial.print(" ");
-  Serial.println(segment.ticks_cum);
+  if (seg_completed==false) {
+      segment.updateStatus();
+      Serial.println("millis   - FL_cum   - RF_cum    - RL_cum    - RR_cum");
+      Serial.print(segment.millis_cum);
+      Serial.print("     - ");
+      Serial.print(segment.FL_ticks_cum);
+      Serial.print("     - ");
+      Serial.print(segment.FR_ticks_cum);
+      Serial.print("     - ");
+      Serial.print(segment.RL_ticks_cum);
+      Serial.print("     - ");
+      Serial.println(segment.RR_ticks_cum);
+
+      Serial.println("ticks step - ticks cum");
+      Serial.print(segment.ticks_step);
+      Serial.print("     - ");
+      Serial.println(segment.ticks_cum);
   
-  Serial.println("speed step - speed cum");
-  Serial.print(segment.speed_step);
-  Serial.print(" ");
-  Serial.println(segment.speed_cum);
+      Serial.println("speed step - speed cum");
+      Serial.print(segment.speed_step);
+      Serial.print("     - ");
+      Serial.println(segment.speed_cum);
 
-  Serial.println("av bearing - gap cum - Completed");
-  Serial.print(segment.average_bearing);
-  Serial.print(" ");
-  Serial.print(segment.gap_cum);
-  Serial.print(" ");
-  Serial.println(seg_completed);
-  Serial.println();
-  Serial.println();
-
+      Serial.println("av bearing - gap cum - Completed");
+      Serial.print(segment.average_bearing);
+      Serial.print("     - ");
+      Serial.print(segment.gap_cum);
+      Serial.print("     - ");
+      Serial.println(seg_completed ? "On-Going" : "Completed");
+      Serial.println();
+      Serial.println();
+  }
 }
 
 void test_segment_delivery_straight(){ // test decoders and calibrate  byte segment_type; //0 in case rotation, 1 in case straight
