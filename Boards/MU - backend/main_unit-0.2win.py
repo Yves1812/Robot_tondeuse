@@ -38,7 +38,7 @@ except ImportError:
 ####################################################################################
 
 #### Segment data          #########################################################
-# speed in ticks / seconds in [-350;350]                                           #
+# speed in ticks / seconds in [-700;700]                                           #
 # ticks in ticks                                                                   #
 # bearing8 as a byte [0;255]                                                       #
 #                                                                                  #
@@ -448,105 +448,6 @@ class routing(object):
         # Returns # of unmown blocks in heading from myrover current position
         #y=ax+b => move to ax+by+c=0 to accomodate heading North and South
         mowing_pot=0
-        
-        if heading==0 :
-            a=1 #heading = angle to north
-            b=0
-            c=-myrover.x
-            delta=HALF_MOWING_WIDTH
-        elif heading==180:
-            a=-1 #heading = angle to south
-            b=0
-            c=myrover.x
-            delta=HALF_MOWING_WIDTH
-        else:
-            a=tan(radians(heading+90))
-            b=-1
-            c=(myrover.y-a*myrover.x)
-            delta=abs(HALF_MOWING_WIDTH/cos(radians(heading+90)))
-
-#### a>0
-####    C-x,C+y < y+z  &  C+x,C-y>y-z
-#### a<0
-####    C+x,C+y < y+z & C-x,C-y>y-z
-            
-        half_block=mymap.block_size/2
-
-        max_i=len(mymap.blocks)
-        if a > 0 and (heading > 0 and heading < 180) :
-            for i in range(max_i):
-                for j in range(len(mymap.blocks[i])):
-                    block_center=mymap.blocks[i][j].center
-                    if ((block_center.x-half_block)*a+b*(block_center.y+half_block)+c+delta>=0) and ((block_center.x+half_block)*a+b*(block_center.y-half_block)+c-delta<=0):
-                        if mymap.blocks[i][j].mowned_status==False:
-                            if block_center.x <= myrover.x :
-                                mowing_pot+=1
-##                            else :
-##                                print(block_center.x,block_center.y)
-                        
-        elif a > 0 and (heading > 180 and heading < 360) :
-            for i in range(len(mymap.blocks)):
-                for j in range(len(mymap.blocks[i])):
-                    block_center=mymap.blocks[i][j].center
-                    if ((block_center.x-half_block)*a+b*(block_center.y+half_block)+c+delta>=0) and ((block_center.x+half_block)*a+b*(block_center.y-half_block)+c-delta<=0):
-                        if (mymap.blocks[i][j].mowned_status==False) :
-                            if block_center.x >= myrover.x :
-                                mowing_pot+=1
-##                            else :
-##                                print(block_center.x,block_center.y)
-
-
-        elif a < 0 and (heading > 0 and heading < 180) :
-            for i in range(len(mymap.blocks)):
-                for j in range(len(mymap.blocks[i])):
-                    block_center=mymap.blocks[i][j].center
-                    if ((block_center.x+half_block)*a+b*(block_center.y+half_block)+c+delta>=0) and ((block_center.x-half_block)*a+b*(block_center.y-half_block)+c-delta<=0):
-                        if (mymap.blocks[i][j].mowned_status==False):
-                            if block_center.x <= myrover.x :
-                                mowing_pot+=1
-##                            else :
-##                                print(block_center.x,block_center.y)
-                        
-        elif a < 0 and (heading > 180 and heading < 360) :
-            for i in range(len(mymap.blocks)):
-                for j in range(len(mymap.blocks[i])):
-                    block_center=mymap.blocks[i][j].center
-                    if ((block_center.x+half_block)*a+b*(block_center.y+half_block)+c+delta>=0) and ((block_center.x-half_block)*a+b*(block_center.y-half_block)+c-delta<=0):
-                        if (mymap.blocks[i][j].mowned_status==False) :
-                            if block_center.x >= myrover.x :
-                                mowing_pot+=1
-##                            else :
-##                                print(block_center.x,block_center.y)
-
-
-        elif heading == 0 :
-            for i in range(len(mymap.blocks)):
-                for j in range(len(mymap.blocks[i])):
-                    block_center=mymap.blocks[i][j].center
-                    if ((block_center.x+half_block)+c+delta>0) and ((block_center.x-half_block)+c-delta<0):
-                        if (mymap.blocks[i][j].mowned_status==False) :
-                            if block_center.y > myrover.y :
-                                mowing_pot+=1
-##                            else :
-##                                print(block_center.x,block_center.y)
-
-        elif heading ==180 :
-            for i in range(len(mymap.blocks)):
-                for j in range(len(mymap.blocks[i])):
-                    block_center=mymap.blocks[i][j].center
-                    if (-block_center.x-half_block+c+delta>0) and (-block_center.x+half_block+c-delta<0):
-                        if (mymap.blocks[i][j].mowned_status==False) :
-                            if block_center.y < myrover.y :
-                                mowing_pot+=1
-##                            else :
-##                                print(block_center.x,block_center.y)
-
-        return mowing_pot
-
-    def fast_mowing_potential(self,heading) :
-        # Returns # of unmown blocks in heading from myrover current position
-        #y=ax+b => move to ax+by+c=0 to accomodate heading North and South
-        mowing_pot=0
 
         i_rover=int(myrover.x/mymap.block_size)
         j_rover=int(myrover.y/mymap.block_size)
@@ -755,7 +656,7 @@ if __name__ == "__main__":
     fh.setLevel(logging.WARNING)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
-    ch.setLevel(logging.ERROR)
+    ch.setLevel(logging.DEBUG)
     # create formatter and add it to the handlers
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     fh.setFormatter(formatter)
@@ -766,50 +667,31 @@ if __name__ == "__main__":
 
 
 ## Initialization ##
-    myrover=Rover()
-    origin=GPSpoint(47.495518, 2.065403)
-    mymap=Map("Jardin", origin,0.000277,-0.000414)
-    logger.debug("My rover object initialized")
     try:
-        #Try initialization every second until success
-        while not myrover.initialization_completed :
-            myrover.initialize()
-            time.sleep(0.1)
-##        for i in range(10):
-##            for j in range(10):
-##                print(mymap.blocks[i][j].center.x,":",mymap.blocks[i][j].center.y)
+        myrover=Rover()
+        logger.debug("My rover object initialized")
 
-        print("Position du rover:", myrover.x,":", myrover.y)
-        print(datetime.datetime.now())
-        for i in range(0,361,10):
-            print(i,":",myrover.routing.fast_mowing_potential(i)) # 616/622
+        origin=GPSpoint(47.495518, 2.065403)
+        mymap=Map("Jardin", origin,0.000277,-0.000414)
+        logger.debug("My map object initialized")
 
-        print(datetime.datetime.now())
-               
-## Forever loop
-##        try:
-##        while True :
-##            myrover.loop()
-##            time.sleep(0.05)
-                                             
+        try:
+            #Try initialization every second until success
+            while not myrover.initialization_completed :
+                myrover.initialize()
+                time.sleep(0.1)
 
-            ##myrover.query_db_status()
-            ##print('x=',myrover.x)
-            ##print('y=',myrover.y)
-            ##
-            ##print(datetime.datetime.now())
-            ##for i in range(10000):
-            ##    myrover.get_rover_status(0)
-            ##print(datetime.datetime.now())
-            ##    print("Bearing 8: ",myrover.bearing8*360/255)
-            ##    print("Bearing 16: ", myrover.bearing16/10)
-            ##    print("pitch: ",myrover.pitch)
-            ##    print("Roll: ",myrover.roll)
-            ##    print("")
-            #    time.sleep(10)
+            while True:
+                myrover.loop()
+                time.sleep(1)
+                print("Position du rover:", myrover.x,":", myrover.y, " @ ", datetime.datetime.now())
+                                                
+        except KeyboardInterrupt:
+            print('User interrupted!')
+    except:
+        print("Unknown error")
 
 
-    except KeyboardInterrupt:
-        print('User interrupted!')
-##    except:
-##        print("Unknown error")
+
+##            for i in range(0,361,10):
+##                print(i,":",myrover.routing.fast_mowing_potential(i)) # 616/622
