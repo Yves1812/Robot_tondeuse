@@ -54,6 +54,7 @@
 
 // Constant
 #define MAX_SPEED 700.0 // ticks per second
+#define MAX_ROTATION 35.0 // bit per second
 
 // I2C address and registers for communication with Main Unit
 // SCL 21
@@ -62,6 +63,7 @@
 #define SEGMENT_REGISTER 10
 #define MOTORS_REGISTER 20
 #define ROUTING_REGISTER 30
+
 
 struct segmentOrder{
   byte segment_type; //0 in case rotation, 1 in case straight
@@ -100,8 +102,8 @@ class Rover {
 class SegmentStatus {
   public:
   // by wheel ticks_cum are calculated but never used, consider simplifying structure
-  	long FL_ticks_cum;
-  	long FR_ticks_cum;
+    long FL_ticks_cum;
+    long FR_ticks_cum;
     long RL_ticks_cum;
     long RR_ticks_cum;
     
@@ -111,15 +113,15 @@ class SegmentStatus {
     int speed_cum; // calculated but never used
   
     short FL_ticks_step;
-  	short FR_ticks_step;
-  	short RL_ticks_step;
-  	short RR_ticks_step;
-  	short ticks_step;
+    short FR_ticks_step;
+    short RL_ticks_step;
+    short RR_ticks_step;
+    short ticks_step;
 //    short gap_step; //not calculated nor used
-  	int millis_step;
-  	int speed_step; // Not used but reported to MU
-  	
-  	byte last_bearing;
+    int millis_step;
+    int speed_step; // Not used but reported to MU
+    
+    byte last_bearing;
     byte current_bearing; // used and reported to MU
     byte average_bearing; // not used but reported to MU
 
@@ -227,11 +229,22 @@ void SegmentStatus::deliverStraightSegment() {
   float FL_factor=1.0, FR_factor=1.0, RL_factor=1.0, RR_factor=1.0, speed_factor=1.0;
   float slowest, adjusted_slowest;
   float target_speed, max_motor_speed;
-  float time_reaction=3;
+  float time_reaction=3.0;
   float max_adjust=0.2; // speed adjustment factor can not exceed 1+ or - max-adjust
 
-  slowest=min(min(abs(FL_ticks_step),abs(FR_ticks_step)),min(abs(RL_ticks_step),abs(RR_ticks_step)));
-  adjusted_slowest=slowest-abs(gap_cum)/time_reaction;
+  slowest=(float)min(min(abs(FL_ticks_step),abs(FR_ticks_step)),min(abs(RL_ticks_step),abs(RR_ticks_step)));
+//  Serial.print(FL_ticks_step);
+//  Serial.print(" ");
+//  Serial.print(FR_ticks_step);
+//  Serial.print(" ");
+//  Serial.print(RL_ticks_step);
+//  Serial.print(" ");
+//  Serial.println(RR_ticks_step);
+//  Serial.print(" ");
+//  Serial.println(slowest);
+  
+  adjusted_slowest=slowest-(float)gap_cum/time_reaction;
+  Serial.println(adjusted_slowest);
 
   // Apply adjustment factors based on speed delta and cumulated gap to compensate for left-right cumulated ticks gap
   FL_factor=adjusted_slowest/(float)abs(FL_ticks_step);
@@ -239,10 +252,27 @@ void SegmentStatus::deliverStraightSegment() {
   RL_factor=adjusted_slowest/(float)abs(RL_ticks_step);
   RR_factor=slowest/(float)abs(RR_ticks_step);
 
+  Serial.print(FL_factor);
+  Serial.print(" ");
+  Serial.print(FR_factor);
+  Serial.print(" ");
+  Serial.print(RL_factor);
+  Serial.print(" ");
+  Serial.println(RR_factor);
+
+
   rover.FL_motor.myspeed*=FL_factor;
   rover.FR_motor.myspeed*=FR_factor;
   rover.RL_motor.myspeed*=RL_factor;
   rover.RR_motor.myspeed*=RR_factor;
+
+//  Serial.print(rover.FL_motor.myspeed);
+//  Serial.print(" ");
+//  Serial.print(rover.FR_motor.myspeed);
+//  Serial.print(" ");
+//  Serial.print(rover.RL_motor.myspeed);
+//  Serial.print(" ");
+//  Serial.println(rover.RR_motor.myspeed);
 
   // Scale overall speed to reconverge towards desired target.speed
   if (current_move.target_ticks-segment.ticks_cum<100){
@@ -305,18 +335,18 @@ void SegmentStatus::deliverRotationSegment() {
   gap_to_target_bearing=abs(current_bearing-current_move.target_bearing); // if target position is passed, will reaccelerate and do à 360°
   if (gap_to_target_bearing>5)
   {
-	// Rotate @ 25% max speed
-    rover.FL_motor.myspeed=MAX_SPEED/4; 
-    rover.FR_motor.myspeed=-MAX_SPEED/4;        
-    rover.RL_motor.myspeed=MAX_SPEED/4;        
-    rover.RR_motor.myspeed=-MAX_SPEED/4;        
+	// Rotate @ half speed
+    rover.FL_motor.myspeed=175; 
+    rover.FR_motor.myspeed=-175;        
+    rover.RL_motor.myspeed=175;        
+    rover.RR_motor.myspeed=-175;        
   }
   else {
 	// Rotate @ 10% speed getting close to target angle
-    rover.FL_motor.myspeed=MAX_SPEED*0.1;
-    rover.FR_motor.myspeed=-MAX_SPEED*0.1;
-    rover.RL_motor.myspeed=MAX_SPEED*0.1;
-    rover.RR_motor.myspeed=-MAX_SPEED*0.1;
+    rover.FL_motor.myspeed=35;
+    rover.FR_motor.myspeed=-35;
+    rover.RL_motor.myspeed=35;
+    rover.RR_motor.myspeed=-35;
   }
 }
 
@@ -676,22 +706,23 @@ int i=0;
 void loop(){
    if (millis()-last_moment>150){ // Sampling rate should not go slower than 150ms otherwise DB will overflow at full speed
      last_moment=millis();
-     test_motors(10);
+    test_motors(10);
 //     test_decoders_read();
 //     test_I2C_w_segment_receiving();
 //     test_I2C_w_segment_receiving();
 //     test_compass();
 //     test_segment_status();
+//     test_segment_delivery_straight();
    }
 }
 
 
 // ******************* Test routines - commented out in production version **************************** // 
 void test_motors(int i){
-  rover.FL_motor.myspeed=0; 
-  rover.FR_motor.myspeed=0;        
-  rover.RL_motor.myspeed=0;        
-  rover.RR_motor.myspeed=0;
+  rover.FL_motor.myspeed=200; 
+  rover.FR_motor.myspeed=200;        
+  rover.RL_motor.myspeed=200;        
+  rover.RR_motor.myspeed=200;
   rover.move_rover();
 //  Serial.println("motor running");
 //  delay(1000);
@@ -724,11 +755,11 @@ void test_segment_status(){ // test decoders and calibrate  byte segment_type; /
       seg_completed=false;
   }
 
-  if (rover.FL_motor.myspeed != 100) {
-      rover.FL_motor.myspeed=100;
-      rover.FR_motor.myspeed=100;
-      rover.RL_motor.myspeed=100;
-      rover.RR_motor.myspeed=100;
+  if (rover.FL_motor.myspeed != 200) {
+      rover.FL_motor.myspeed=200;
+      rover.FR_motor.myspeed=200;
+      rover.RL_motor.myspeed=200;
+      rover.RR_motor.myspeed=200;
       rover.move_rover();
   }
 
@@ -750,18 +781,18 @@ void test_segment_status(){ // test decoders and calibrate  byte segment_type; /
       Serial.print("     - ");
       Serial.println(segment.ticks_cum);
   
-      Serial.println("speed step - speed cum");
-      Serial.print(segment.speed_step);
-      Serial.print("     - ");
-      Serial.println(segment.speed_cum);
+//      Serial.println("speed step - speed cum");
+//      Serial.print(segment.speed_step);
+//      Serial.print("     - ");
+//      Serial.println(segment.speed_cum);
 
-      Serial.println("av bearing - gap cum - Completed");
-      Serial.print(segment.average_bearing);
-      Serial.print("     - ");
+//      Serial.println("av bearing - gap cum - Completed");
+//      Serial.print(segment.average_bearing);
+//      Serial.print("     - ");
       Serial.print(segment.gap_cum);
-      Serial.print("     - ");
-      Serial.println(seg_completed ? "On-Going" : "Completed");
-      Serial.println();
+//      Serial.print("     - ");
+//      Serial.println(seg_completed ? "On-Going" : "Completed");
+//      Serial.println();
       Serial.println();
   }
 }
@@ -776,15 +807,18 @@ void test_segment_delivery_straight(){
       seg_completed=false;
   }
 
-  if (rover.FL_motor.myspeed != 100) {
-      rover.FL_motor.myspeed=100;
-      rover.FR_motor.myspeed=100;
-      rover.RL_motor.myspeed=100;
-      rover.RR_motor.myspeed=100;
+  if (rover.FL_motor.myspeed != 300) {
+      rover.FL_motor.myspeed=300;
+      rover.FR_motor.myspeed=300;
+      rover.RL_motor.myspeed=300;
+      rover.RR_motor.myspeed=300;
       rover.move_rover();
+      delay(100);
   }
+  
   if (seg_completed==false) {
     if (current_move.segment_type == 1){
+      segment.updateStatus();
       segment.deliverStraightSegment();
     }
   //  if (current_move.segment_type == 0){
