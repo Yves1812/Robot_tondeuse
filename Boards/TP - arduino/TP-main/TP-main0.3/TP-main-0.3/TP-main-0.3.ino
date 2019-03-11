@@ -351,6 +351,8 @@ void SegmentStatus::deliverRotationSegment() {
 }
 
 bool SegmentStatus::readDecoders(){
+  float average;
+
 // Need error management
   SPI.beginTransaction (SPISettings (2000000, MSBFIRST, SPI_MODE0));  // 2 MHz clock
   // enable Slave Select
@@ -371,6 +373,14 @@ bool SegmentStatus::readDecoders(){
   // disable Slave Select
   digitalWrite(SS, HIGH);
   SPI.endTransaction ();
+
+  average=((float)FL_ticks_step+(float)FR_ticks_step+(float)RL_ticks_step+(float)RR_ticks_step)/4.0;
+
+  // Filter wrong values
+  if (abs(FL_ticks_step-average)>50) {FL_ticks_step=(byte)((float)FR_ticks_step+(float)RL_ticks_step+(float)RR_ticks_step)/3.0;}
+  if (abs(FR_ticks_step-average)>50) {FR_ticks_step=(byte)((float)FL_ticks_step+(float)RL_ticks_step+(float)RR_ticks_step)/3.0;}
+  if (abs(RL_ticks_step-average)>50) {RL_ticks_step=(byte)((float)FL_ticks_step+(float)FR_ticks_step+(float)RR_ticks_step)/3.0;}
+  if (abs(RR_ticks_step-average)>50) {RR_ticks_step=(byte)((float)FL_ticks_step+(float)FR_ticks_step+(float)RL_ticks_step)/3.0;}
   
   return true;
 }
@@ -664,10 +674,13 @@ void setup() {
   SPI.setClockDivider(SPI_CLOCK_DIV8);
 
 // initialize rover and secure speed of 0
-  rover.begin(); 
+  rover.begin();
   delay(5);
 // Initialize segment data while rover is stopped to avoid crap at first read + initialize bearing reading compas
   segment.begin(); // requires compass to be connected (initial compass read)
+  segment.readDecoders(); // clear decoders and reinitialize segment for a clean start
+  segment.begin(); // requires compass to be connected (initial compass read)
+  
   Serial.println("Rover and decoders initialized");
   Serial.print("Initial heading of rover : ");
   Serial.println(segment.average_bearing);
@@ -719,10 +732,10 @@ void loop(){
 
 // ******************* Test routines - commented out in production version **************************** // 
 void test_motors(int i){
-  rover.FL_motor.myspeed=200; 
-  rover.FR_motor.myspeed=200;        
-  rover.RL_motor.myspeed=200;        
-  rover.RR_motor.myspeed=200;
+  rover.FL_motor.myspeed=00; 
+  rover.FR_motor.myspeed=00;        
+  rover.RL_motor.myspeed=00;        
+  rover.RR_motor.myspeed=00;
   rover.move_rover();
 //  Serial.println("motor running");
 //  delay(1000);
@@ -807,11 +820,11 @@ void test_segment_delivery_straight(){
       seg_completed=false;
   }
 
-  if (rover.FL_motor.myspeed != 300) {
-      rover.FL_motor.myspeed=300;
-      rover.FR_motor.myspeed=300;
-      rover.RL_motor.myspeed=300;
-      rover.RR_motor.myspeed=300;
+  if (rover.FL_motor.myspeed != 500) {
+      rover.FL_motor.myspeed=500;
+      rover.FR_motor.myspeed=500;
+      rover.RL_motor.myspeed=500;
+      rover.RR_motor.myspeed=500;
       rover.move_rover();
       delay(100);
   }
